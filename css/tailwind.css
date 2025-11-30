@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap");
+
+:root {
+  color-scheme: light;
+  --brand-blue: #0f4c81;
+  --brand-sky: #38bdf8;
+  --brand-ink: #0b1120;
+  --brand-ghost: #f8fafc;
+  --brand-steel: #94a3b8;
+}
+
+body {
+  font-family: "Space Grotesk", "Manrope", system-ui, sans-serif;
+  background: var(--brand-ghost);
+}
+
+.banner-panel {
+  --panel-top: rgba(56, 189, 248, 0.15);
+  --panel-bottom: rgba(15, 118, 195, 0.35);
+  background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.9),
+      rgba(255, 255, 255, 0.7)
+    ),
+    linear-gradient(160deg, rgba(56, 189, 248, 0.2), rgba(15, 118, 195, 0.25));
+  border: 1px solid rgba(15, 47, 93, 0.2);
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.08), 0 10px 25px rgba(15, 47, 93, 0.12);
+}
+
+.banner-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at top right, rgba(56, 189, 248, 0.3), transparent 65%);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.dropdown-panel {
+  background-color: rgba(15, 47, 93, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  box-shadow: 0 20px 35px rgba(15, 23, 42, 0.25);
+}
+
+.dropdown-panel a {
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-panel a:hover {
+  background-color: rgba(56, 189, 248, 0.15);
+}
