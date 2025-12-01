@@ -397,12 +397,82 @@
     fillExtraSection(1, extraSectionData[1]);
   }
 
+  function updateInputMode(unit, input) {
+    if (!input) return;
+    input.setAttribute("inputmode", "numeric");
+    input.setAttribute("pattern", "\\d*");
+    if (unit === "Revenue") {
+      input.placeholder = "$";
+    } else if (unit === "Miles") {
+      input.placeholder = "Enter miles";
+    } else if (unit === "PUs") {
+      input.placeholder = "Enter PUs";
+    } else {
+      input.placeholder = "Enter value";
+    }
+  }
+
+  function formatDisplayValue(digits, unit) {
+    if (!digits) return "";
+    const withCommas = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (unit === "Revenue") {
+      return `$${withCommas}`;
+    }
+    return withCommas;
+  }
+
+  function sanitizeNumberInput(event) {
+    const input = event.target;
+    const fixedUnit = input.dataset.fixedUnit;
+    const unitSource = input.dataset.unitSource;
+    const unitSelect = unitSource ? document.getElementById(unitSource) : null;
+    const unit = fixedUnit || unitSelect?.value || "Miles";
+    const digitsOnly = input.value.replace(/[^0-9]/g, "");
+    input.value = formatDisplayValue(digitsOnly, unit);
+    updateInputMode(unit, input);
+  }
+
+  function handleUnitChange(unitSelectId, unitLabelId, inputs) {
+    const selectEl = document.getElementById(unitSelectId);
+    const labelEl = document.getElementById(unitLabelId);
+    if (!selectEl) return;
+    const unit = selectEl.value || "Miles";
+    if (labelEl) labelEl.textContent = unit;
+    (inputs || []).forEach((inputId) => {
+      const el = document.getElementById(inputId);
+      if (!el) return;
+      const effectiveUnit = el.dataset.fixedUnit || unit;
+      updateInputMode(effectiveUnit, el);
+      const digitsOnly = el.value.replace(/[^0-9]/g, "");
+      el.value = formatDisplayValue(digitsOnly, effectiveUnit);
+    });
+  }
+
   function init() {
     extraDotRadios.forEach((radio) => radio.addEventListener("change", updateExtraSections));
     extraDotRadios2.forEach((radio) => radio.addEventListener("change", updateExtraSections));
     dotLookupBtn?.addEventListener("click", handleDotLookupClick);
     dotLookup2Btn?.addEventListener("click", handleExtraLookup2Click);
     dotLookup3Btn?.addEventListener("click", handleExtraLookup3Click);
+    const unitConfigs = [
+      { select: "projectedUnit", label: "currentTermUnit", inputs: ["projectedValue", "currentTermValue"] },
+      { select: "contractUnit", label: "currentTermUnitContract", inputs: ["contractValue", "currentTermValueContract"] },
+    ];
+
+    unitConfigs.forEach((cfg) => {
+      const selectEl = document.getElementById(cfg.select);
+      selectEl?.addEventListener("change", () => handleUnitChange(cfg.select, cfg.label, cfg.inputs));
+      cfg.inputs.forEach((inputId) => {
+        const inputEl = document.getElementById(inputId);
+        inputEl?.addEventListener("input", sanitizeNumberInput);
+      });
+      handleUnitChange(cfg.select, cfg.label, cfg.inputs);
+    });
+    // Fixed unit (revenue-only) inputs
+    ["forwarderRevenueValue", "forwarderRevenueCurrent", "brokerRevenueValue", "brokerRevenueCurrent"].forEach((id) => {
+      document.getElementById(id)?.addEventListener("input", sanitizeNumberInput);
+    });
+    handleUnitChange("contractUnit", "currentTermUnitContract", ["forwarderRevenueValue", "forwarderRevenueCurrent", "brokerRevenueValue", "brokerRevenueCurrent"]);
     dashboardToggle?.addEventListener("click", toggleDashboardDropdown);
     hideGroup("base");
     hideGroup("extra1");

@@ -12,6 +12,46 @@
     <link rel="stylesheet" href="css/forms.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="js/tailwind-config.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const order = ["common", "contract", "forwarder", "freightbroker"];
+
+        const carrierCheckboxes = Array.from(
+          document.querySelectorAll('input[name="carrierType"]')
+        );
+
+        const rowsByCarrier = {};
+        order.forEach((key) => {
+          rowsByCarrier[key] = document.querySelector(
+            '[data-carrier-row="' + key + '"]'
+          );
+        });
+
+        function updateCarrierRevenueRows() {
+          order.forEach((key) => {
+            const row = rowsByCarrier[key];
+            if (!row) return;
+
+            const checkbox = carrierCheckboxes.find((cb) => cb.value === key);
+            const isChecked = checkbox && checkbox.checked;
+
+            if (isChecked) {
+              row.classList.remove("hidden");
+            } else {
+              row.classList.add("hidden");
+            }
+          });
+        }
+
+        // Initialize on load
+        updateCarrierRevenueRows();
+
+        // Update on change
+        carrierCheckboxes.forEach((cb) => {
+          cb.addEventListener("change", updateCarrierRevenueRows);
+        });
+      });
+    </script>
   </head>
   <body class="font-sans bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900">
     <!-- Header (matching index.html style) -->
@@ -19,16 +59,13 @@
       <div class="mx-auto flex max-w-6xl items-center px-6 py-4">
         <nav class="ml-auto flex items-center gap-6 text-sm font-medium text-slate-600">
           <a class="transition hover:text-brand-blue" href="index.html">Home</a>
-          <a class="transition hover:text-brand-blue" href="index.html#features">Features</a>
-          <a class="transition hover:text-brand-blue" href="index.html#about">About</a>
-          <a class="transition hover:text-brand-blue" href="index.html#contact">Contact</a>
           <div class="relative">
               <button
               id="dashboardToggle"
-              class="flex items-center gap-1 rounded-full border border-slate-300 px-4 py-2 text-xs tracking-[0.4em] text-slate-600 transition hover:border-brand-blue hover:text-brand-blue font-sans font-medium"
+              class="flex items-center gap-1 rounded-full border border-slate-300 px-4 py-2 text-xs tracking-[0.2em] text-slate-600 transition hover:border-brand-blue hover:text-brand-blue font-sans font-medium"
               type="button"
             >
-              DASHBOARDS
+              LOG-IN
               <svg
                 class="h-3 w-3 transform transition"
                 fill="none"
@@ -510,7 +547,7 @@
           
           <div class="mb-6">
             <h3 class="mb-3 text-sm font-semibold text-slate-700">Type of Carrier</h3>
-            <div class="space-y-2">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="carrierType" value="common" class="h-4 w-4 rounded border-slate-300" />
                 <span class="text-sm">Common Carrier</span>
@@ -523,27 +560,168 @@
                 <input type="checkbox" name="carrierType" value="forwarder" class="h-4 w-4 rounded border-slate-300" />
                 <span class="text-sm">Freight Forwarder</span>
               </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="carrierType" value="freightbroker" class="h-4 w-4 rounded border-slate-300" />
+                <span class="text-sm">Freight Broker</span>
+              </label>
+            </div>
+            <div class="my-4 border-t border-dashed border-slate-300"></div>
+            <div
+              class="carrier-revenue-row hidden flex flex-wrap items-center justify-between gap-4 text-sm text-slate-700"
+              data-carrier-row="common"
+            >
+              <div class="flex items-center gap-3">
+                <span class="h-2 w-2 rounded-full bg-slate-500"></span>
+                <span>Projected Upcoming Common Carrier</span>
+                <select id="projectedUnit" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20">
+                  <option value="Miles">Miles</option>
+                  <option value="Revenue">Revenue</option>
+                  <option value="PUs">PUs</option>
+                </select>
+                <input
+                  id="projectedValue"
+                  type="text"
+                  class="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  inputmode="numeric"
+                  data-unit-source="projectedUnit"
+                />
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <label for="currentTermValue" class="sr-only">Current Term Common Carrier Miles</label>
+                <span>Current Term Common Carrier <span id="currentTermUnit">Miles</span>:</span>
+                <input
+                  id="currentTermValue"
+                  type="text"
+                  class="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  inputmode="numeric"
+                  data-unit-source="projectedUnit"
+                />
+              </div>
+            </div>
+            <div
+              class="carrier-revenue-row hidden flex flex-wrap items-center justify-between gap-4 text-sm text-slate-700 mt-4"
+              data-carrier-row="contract"
+            >
+              <div class="flex items-center gap-3">
+                <span class="h-2 w-2 rounded-full bg-slate-500"></span>
+                <span>Projected Upcoming Contract Carrier</span>
+                <select id="contractUnit" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20">
+                  <option value="Miles">Miles</option>
+                  <option value="Revenue">Revenue</option>
+                  <option value="PUs">PUs</option>
+                </select>
+                <input
+                  id="contractValue"
+                  type="text"
+                  class="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  inputmode="numeric"
+                  data-unit-source="contractUnit"
+                />
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <label for="currentTermValueContract" class="sr-only">Current Term Contract Carrier Miles</label>
+                <span>Current Term Contract Carrier <span id="currentTermUnitContract">Miles</span>:</span>
+                <input
+                  id="currentTermValueContract"
+                  type="text"
+                  class="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  inputmode="numeric"
+                  data-unit-source="contractUnit"
+                />
+              </div>
+            </div>
+            <div
+              class="carrier-revenue-row hidden mt-4 flex flex-wrap items-center justify-between gap-4 text-sm text-slate-700"
+              data-carrier-row="forwarder"
+            >
+              <div class="flex items-center gap-3">
+                <span class="h-2 w-2 rounded-full bg-slate-500"></span>
+                <span>Projected Upcoming Freight Forwarder Revenue:</span>
+                <input
+                  id="forwarderRevenueValue"
+                  type="text"
+                  class="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  inputmode="numeric"
+                  data-fixed-unit="Revenue"
+                />
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <span>Current Term Freight Forwarder Revenue:</span>
+                <input
+                  id="forwarderRevenueCurrent"
+                  type="text"
+                  class="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  inputmode="numeric"
+                  data-fixed-unit="Revenue"
+                />
+              </div>
+            </div>
+            <div
+              class="carrier-revenue-row hidden mt-4 flex flex-wrap items-center justify-between gap-4 text-sm text-slate-700"
+              data-carrier-row="freightbroker"
+            >
+              <div class="flex items-center gap-3">
+                <span class="h-2 w-2 rounded-full bg-slate-500"></span>
+                <span>Projected Upcoming Freight Broker Revenue:</span>
+                <input
+                  id="brokerRevenueValue"
+                  type="text"
+                  class="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  inputmode="numeric"
+                  data-fixed-unit="Revenue"
+                />
+              </div>
+              <div class="flex items-center gap-2 text-sm">
+                <span>Current Term Freight Broker Revenue:</span>
+                <input
+                  id="brokerRevenueCurrent"
+                  type="text"
+                  class="w-32 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  inputmode="numeric"
+                  data-fixed-unit="Revenue"
+                />
+              </div>
             </div>
           </div>
 
           <div>
             <h3 class="mb-3 text-sm font-semibold text-slate-700">Type of Operation</h3>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="opType" value="dryvan" class="h-4 w-4 rounded border-slate-300" />
                 <span class="text-sm">Dry Van / Box</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="opType" value="reefer" class="h-4 w-4 rounded border-slate-300" />
-                <span class="text-sm">Refrigerated</span>
+                <span class="text-sm">Refrigerated Freight</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="opType" value="household" class="h-4 w-4 rounded border-slate-300" />
+                <span class="text-sm">Household Goods</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="opType" value="flatbed" class="h-4 w-4 rounded border-slate-300" />
-                <span class="text-sm">Flatbed</span>
+                <span class="text-sm">Flat Bed</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="opType" value="oversized" class="h-4 w-4 rounded border-slate-300" />
+                <span class="text-sm">Oversized / Overweight</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="opType" value="doubles" class="h-4 w-4 rounded border-slate-300" />
+                <span class="text-sm">Double Trailers</span>
               </label>
               <label class="flex items-center gap-2">
                 <input type="checkbox" name="opType" value="autohauler" class="h-4 w-4 rounded border-slate-300" />
                 <span class="text-sm">Automobile Hauler</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="opType" value="containerized" class="h-4 w-4 rounded border-slate-300" />
+                <span class="text-sm">Containerized Freight</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="opType" value="mobilehome" class="h-4 w-4 rounded border-slate-300" />
+                <span class="text-sm">Mobile Home Hauler</span>
               </label>
             </div>
           </div>

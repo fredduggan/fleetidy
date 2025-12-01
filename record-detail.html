@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Application Details | fleetidy</title>
+    <meta name="description" content="fleetidy underwriting application detail view" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tailwind.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/record-detail.js" defer></script>
+  </head>
+  <body class="font-sans bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900">
+    <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/70 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center px-6 py-4">
+        <nav class="ml-auto flex items-center gap-6 text-sm font-medium text-slate-600">
+          <a class="transition hover:text-brand-blue" href="index.html">Home</a>
+          <a class="transition hover:text-brand-blue" href="app.html">Application</a>
+          <div class="relative">
+            <button
+              id="dashboardToggle"
+              class="flex items-center gap-1 rounded-full border border-slate-300 px-4 py-2 text-xs tracking-[0.2em] text-slate-600 transition hover:border-brand-blue hover:text-brand-blue font-sans font-medium"
+              type="button"
+            >
+              LOG-IN
+              <svg class="h-3 w-3 transform transition" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div
+              id="dashboardDropdown"
+              class="dropdown-panel pointer-events-none opacity-0 absolute right-0 mt-2 w-48 rounded-2xl p-3 text-sm font-semibold bg-white text-slate-600 border border-slate-200 transition-all duration-200 font-sans"
+              aria-hidden="true"
+            >
+              <a class="block rounded-xl px-3 py-2 hover:text-brand-blue font-sans" href="index.html#agency-dashboard">Agency Dashboard</a>
+              <a class="block rounded-xl px-3 py-2 hover:text-brand-blue font-sans" href="underwriting-dashboard.html">UW Dashboard</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-6 py-10">
+      <section class="rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-sm">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-start gap-4">
+            <img src="assets/logo3.png" alt="fleetidy logo" class="h-16 w-16 object-contain" />
+            <div>
+              <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Cargo & Logistics Application</p>
+              <h1 id="detailInsured" class="text-2xl font-semibold text-slate-900">Insured Name</h1>
+              <p class="text-sm font-semibold text-slate-600">Policy <span id="detailPolicy"></span></p>
+            </div>
+          </div>
+          <div class="space-y-2 text-right">
+            <div id="detailStatusPill" class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700">
+              <span class="h-2 w-2 rounded-full bg-slate-400"></span>
+              <span id="detailStatus">Status</span>
+            </div>
+            <p class="text-sm text-slate-600">Effective <span id="detailEffective" class="font-semibold text-slate-900"></span></p>
+          </div>
+        </div>
+
+        <form class="mt-8 space-y-8">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Policy #</label>
+              <input id="detailPolicyInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Effective Date</label>
+              <input id="detailEffectiveInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Status</label>
+              <input id="detailStatusInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">FRED Score</label>
+              <input id="detailScoreInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Insured Name</label>
+              <input id="detailInsuredInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Contact</label>
+              <input id="detailContactInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Phone</label>
+              <input id="detailPhoneInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Email</label>
+              <input id="detailEmailInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Status (Pill)</label>
+              <div class="mt-1">
+                <div id="detailStatusPillInline" class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700">
+                  <span class="h-2 w-2 rounded-full bg-slate-400"></span>
+                  <span id="detailStatusInline">Status</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Street Address</label>
+              <input id="detailAddressInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">City</label>
+                <input id="detailCityInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">State</label>
+                <input id="detailStateInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Zip</label>
+                <input id="detailZipInput" readonly class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Risk Snapshot</label>
+            <div id="detailSnapshot" class="mt-2 flex flex-wrap gap-2 text-sm">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Notes</label>
+            <textarea id="detailNotes" readonly class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900"></textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <a href="underwriting-dashboard.html" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-brand-blue hover:text-brand-blue">Back to Dashboard</a>
+            <a href="#" class="rounded-full border border-brand-blue bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-95">Underwriting Worksheet</a>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="border-t border-slate-200 bg-white/70">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-xs tracking-[0.4em] text-slate-500 md:flex-row md:items-center md:justify-between">
+        <span>© 2026 fleetidy. all rights reserved.</span>
+        <div class="flex gap-4">
+          <a class="transition hover:text-brand-blue" href="#privacy">Privacy</a>
+          <a class="transition hover:text-brand-blue" href="#terms">Terms</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
