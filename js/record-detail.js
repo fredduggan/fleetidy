@@ -43,6 +43,21 @@
 
   const record = records.find((r) => r.policy === policyParam) || records[0];
 
+  function applyDefaults(rec) {
+    const defaultCarrierTypes = ["common", "contract"];
+    const defaultCarrierMetrics = {
+      common: { projected: "120,000 Miles", current: "95,000 Miles" },
+      contract: { projected: "$1,250,000 Revenue", current: "$1,050,000 Revenue" },
+      forwarder: { projected: "$480,000 Revenue", current: "$410,000 Revenue" },
+      freightbroker: { projected: "$220,000 Revenue", current: "$180,000 Revenue" },
+    };
+    const defaultOperations = ["Dry Van / Box", "Refrigerated Freight", "Flat Bed"];
+
+    rec.carrierTypes = rec.carrierTypes || defaultCarrierTypes;
+    rec.carrierMetrics = rec.carrierMetrics || defaultCarrierMetrics;
+    rec.operations = rec.operations || defaultOperations;
+  }
+
   function setText(id, value) {
     const el = document.getElementById(id);
     if (el) el.textContent = value;
@@ -105,7 +120,64 @@
     });
   }
 
+  function renderCarrierTypes(list = []) {
+    const wrap = document.getElementById("detailCarrierTypes");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    const labelMap = {
+      common: "Common Carrier",
+      contract: "Contract Carrier",
+      forwarder: "Freight Forwarder",
+      freightbroker: "Freight Broker",
+    };
+    list.forEach((key) => {
+      const chip = document.createElement("span");
+      chip.className = "inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700";
+      chip.textContent = labelMap[key] || key;
+      wrap.appendChild(chip);
+    });
+  }
+
+  function renderCarrierMetrics(metrics = {}, types = []) {
+    const container = document.getElementById("detailCarrierMetrics");
+    if (!container) return;
+    container.innerHTML = "";
+    const order = ["common", "contract", "forwarder", "freightbroker"];
+    const labelMap = {
+      common: "Common Carrier",
+      contract: "Contract Carrier",
+      forwarder: "Freight Forwarder",
+      freightbroker: "Freight Broker",
+    };
+    order.forEach((key) => {
+      if (!types.includes(key) || !metrics[key]) return;
+      const row = document.createElement("div");
+      row.className = "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3";
+      const left = document.createElement("div");
+      left.className = "flex items-center gap-2 text-slate-700";
+      left.innerHTML = `<span class="h-2 w-2 rounded-full bg-slate-500"></span><span class="font-semibold">${labelMap[key] || key}</span><span class="text-slate-500">Projected: ${metrics[key].projected}</span>`;
+      const right = document.createElement("div");
+      right.className = "text-slate-700";
+      right.textContent = `Current: ${metrics[key].current}`;
+      row.append(left, right);
+      container.appendChild(row);
+    });
+  }
+
+  function renderOperations(list = []) {
+    const wrap = document.getElementById("detailOperations");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    list.forEach((op) => {
+      const chip = document.createElement("span");
+      chip.className = "inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700";
+      chip.textContent = op;
+      wrap.appendChild(chip);
+    });
+  }
+
   // populate page
+  applyDefaults(record);
   document.title = `${record.insured} | Application Details`;
   setText("detailInsured", record.insured);
   setText("detailPolicy", record.policy);
@@ -128,5 +200,14 @@
   setValue("detailStateInput", state || "");
   setValue("detailZipInput", record.zip);
   setText("detailNotes", record.notes);
+  if (record.snapshot) {
+    const carrierSummary = `Carriers: ${record.carrierTypes.join(", ")}`;
+    const opsSummary = `Operations: ${record.operations.join(", ")}`;
+    if (!record.snapshot.includes(carrierSummary)) record.snapshot.push(carrierSummary);
+    if (!record.snapshot.includes(opsSummary)) record.snapshot.push(opsSummary);
+  }
   renderSnapshot(record.snapshot);
+  renderCarrierTypes(record.carrierTypes);
+  renderCarrierMetrics(record.carrierMetrics, record.carrierTypes);
+  renderOperations(record.operations);
 })();

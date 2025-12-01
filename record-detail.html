@@ -19,7 +19,6 @@
       <div class="mx-auto flex max-w-6xl items-center px-6 py-4">
         <nav class="ml-auto flex items-center gap-6 text-sm font-medium text-slate-600">
           <a class="transition hover:text-brand-blue" href="index.html">Home</a>
-          <a class="transition hover:text-brand-blue" href="app.html">Application</a>
           <div class="relative">
             <button
               id="dashboardToggle"
@@ -147,6 +146,19 @@
             <textarea id="detailNotes" readonly class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900"></textarea>
           </div>
 
+          <div class="rounded-2xl border border-slate-200 bg-white/80 p-6 shadow-sm">
+            <h3 class="mb-4 text-lg font-semibold text-slate-900">Operations &amp; Coverage</h3>
+            <div class="mb-6 space-y-3">
+              <h4 class="text-sm font-semibold text-slate-700">Type of Carrier (view only)</h4>
+              <div id="detailCarrierTypes" class="flex flex-wrap gap-2 text-sm"></div>
+              <div id="detailCarrierMetrics" class="space-y-3 text-sm"></div>
+            </div>
+            <div class="space-y-3">
+              <h4 class="text-sm font-semibold text-slate-700">Type of Operation (view only)</h4>
+              <div id="detailOperations" class="flex flex-wrap gap-2 text-sm"></div>
+            </div>
+          </div>
+
           <div class="flex flex-wrap items-center justify-between gap-4">
             <a href="underwriting-dashboard.html" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-brand-blue hover:text-brand-blue">Back to Dashboard</a>
             <a href="#" class="rounded-full border border-brand-blue bg-brand-blue px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:brightness-95">Underwriting Worksheet</a>
@@ -164,5 +176,45 @@
         </div>
       </div>
     </footer>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const order = ["common", "contract", "forwarder", "freightbroker"];
+
+        const carrierCheckboxes = Array.from(
+          document.querySelectorAll('input[name="carrierType"]')
+        );
+
+        const rowsByCarrier = {};
+        order.forEach((key) => {
+          rowsByCarrier[key] = document.querySelector(
+            '[data-carrier-row="' + key + '"]'
+          );
+        });
+
+        function updateCarrierRevenueRows() {
+          order.forEach((key) => {
+            const row = rowsByCarrier[key];
+            if (!row) return;
+
+            const checkbox = carrierCheckboxes.find((cb) => cb.value === key);
+            const isChecked = checkbox && checkbox.checked;
+
+            if (isChecked) {
+              row.classList.remove("hidden");
+            } else {
+              row.classList.add("hidden");
+            }
+          });
+        }
+
+        // Initialize on load
+        updateCarrierRevenueRows();
+
+        // Update on change
+        carrierCheckboxes.forEach((cb) => {
+          cb.addEventListener("change", updateCarrierRevenueRows);
+        });
+      });
+    </script>
   </body>
 </html>
