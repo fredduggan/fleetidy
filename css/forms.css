@@ -1,0 +1,25 @@
+/* Light-blue backgrounds for form controls (higher specificity to override Tailwind utilities) */
+input.rounded-lg,
+input[type="text"].rounded-lg,
+input[type="date"].rounded-lg,
+input[type="number"].rounded-lg,
+input[type="email"].rounded-lg,
+input[type="tel"].rounded-lg,
+select.rounded-lg,
+textarea.rounded-lg {
+  background-color: rgba(56, 189, 248, 0.08) !important; /* subtle light-blue */
+}
+
+/* Slightly stronger on focus */
+input.rounded-lg:focus,
+select.rounded-lg:focus,
+textarea.rounded-lg:focus {
+  background-color: rgba(56, 189, 248, 0.12) !important;
+}
+
+/* Keep readonly/disabled fields subtle but readable */
+input[readonly].rounded-lg,
+input[disabled].rounded-lg,
+select[disabled].rounded-lg {
+  background-color: rgba(15, 76, 129, 0.04) !important;
+}

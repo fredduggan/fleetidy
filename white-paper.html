@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Fleetidy — White Paper</title>
+		<meta name="description" content="Fleetidy white paper: Modernizing Motor Truck Cargo Underwriting" />
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="css/tailwind.css" />
+		<script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+		<!-- MathJax for rendering LaTeX equations -->
+		<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+	</head>
+	<body class="font-sans bg-white text-slate-900">
+		<main class="mx-auto max-w-4xl px-6 py-12">
+			<header class="mb-8 flex items-center gap-4">
+				<img src="assets/logo3.png" alt="Fleetidy Logo" class="h-12 w-12 object-contain" loading="lazy" />
+				<div>
+					<h1 class="text-3xl font-semibold">White Paper</h1>
+					<p class="mt-2 text-slate-600">Modernizing Motor Truck Cargo Underwriting Through Data Retention and Quantifiable Risk</p>
+				</div>
+			</header>
+
+			<section id="executive-summary" class="prose-lg mb-8">
+				<h2 class="text-xl font-semibold">Executive Summary</h2>
+				<p>Motor truck cargo underwriting has long depended on subjective decision-making. Underwriters review applications, loss runs, safety scores, and operational details—but the process remains inconsistent, manual, and influenced by individual bias.</p>
+				<p>Critical submission data, including from declined and quote-not-taken (QNW) business, is routinely discarded. This destroys strategic insight and prevents insurers from learning from the full market picture.</p>
+				<p>Fleetidy introduces a modern underwriting engine that automates data ingestion, retains every submission, and produces a quantifiable, empirical equation of risk. The result is measurable underwriting, consistent pricing, and a real-time understanding of portfolio behavior.</p>
+			</section>
+
+			<section id="problems" class="mb-8">
+				<h2 class="text-xl font-semibold">Problems in Traditional Cargo Underwriting</h2>
+
+				<h3 class="mt-4 font-semibold">Subjective Evaluation</h3>
+				<p>Underwriters evaluate risk variables inconsistently, such as:</p>
+				<ul class="list-disc ml-6 text-slate-700">
+					<li>FMCSA safety scores</li>
+					<li>Fleet size and utilization</li>
+					<li>Commodity hazard characteristics</li>
+					<li>Geographic distribution</li>
+					<li>Operational behavior</li>
+					<li>Historical loss performance</li>
+				</ul>
+
+				<h3 class="mt-4 font-semibold">Manual, Fragmented Data Review</h3>
+				<p>Submissions arrive through portals, spreadsheets, email attachments, PDFs, and handwritten descriptions. Manual review introduces inefficiency and error.</p>
+
+				<h3 class="mt-4 font-semibold">Data Waste</h3>
+				<p>Declined and QNW submissions disappear from underwriting systems, removing:</p>
+				<ul class="list-disc ml-6 text-slate-700">
+                    <li>harvestible data sets</li>
+                    <li>market intelligence</li>
+					<li>opportunity trends</li>
+					<li>validation of current strategies</li>
+				</ul>
+
+				<h3 class="mt-4 font-semibold">Underwriting Bias</h3>
+				<p>Without empirical measurement, the underwriting process relies on prior experience, memory, and heuristics. Bias becomes embedded in the portfolio and a function of employee attrition.</p>
+			</section>
+
+			<section id="complexity" class="mb-8">
+				<h2 class="text-xl font-semibold">Complexity of Cargo Risk</h2>
+				<p>Cargo loss exposure depends on multiple interacting variables:</p>
+				<ul class="list-disc ml-6 text-slate-700">
+					<li>driver quality and safety performance (ISS, SAFER, etc)</li>
+					<li>fleet size and structure (Owner Operators vs Hired Drivers)</li>
+					<li>commodity mix and hazard level</li>
+					<li>geographic footprint and route selection</li>
+					<li>historical loss behavior as a predictor of future outcomes</li>
+				</ul>
+			</section>
+
+			<section id="fleetidy" class="mb-8">
+				<h2 class="text-xl font-semibold">Fleetidy: A Modern Underwriting Engine</h2>
+
+				<h3 class="mt-4 font-semibold">Automated Data Capture</h3>
+				<p>Fleetidy ingests and structures:</p>
+				<ul class="list-disc ml-6 text-slate-700">
+					<li>FMCSA safety and inspection data</li>
+					<li>loss history</li>
+					<li>application details</li>
+					<li>commodity categories</li>
+					<li>fleet configuration</li>
+					<li>geographic and routing information</li>
+				</ul>
+
+				<h3 class="mt-4 font-semibold">Permanent Underwriting Intelligence Repository</h3>
+				<p>Fleetidy retains bound accounts, declined submissions, QNW submissions, incomplete submissions, and repeated submissions over time. Every data point strengthens long-term strategy.</p>
+
+				<h3 class="mt-4 font-semibold">The FRED Score</h3>
+				<p>The <strong>Fleet Risk Empirical Data</strong> score is a mathematically derived, explainable risk measure based on real-world empirical data.</p>
+			</section>
+
+			<section id="algorithm" class="mb-8">
+				<h2 class="text-xl font-semibold">Algorithmic Structure</h2>
+				<p>Fleetidy evaluates six foundational underwriting variables:</p>
+				<ol class="list-decimal ml-6 text-slate-700">
+					<li>Safety performance</li>
+					<li>Fleet size and structure</li>
+					<li>Commodity mix</li>
+					<li>Loss history</li>
+					<li>Geography and route behavior</li>
+					<li>Operational and production source patterns</li>
+				</ol>
+                <p>Which become normalized across the FMCSA Census data and then compared to averages and historical empirical results</p>
+			</section>
+
+			<section id="retention" class="mb-8">
+				<h2 class="text-xl font-semibold">Retention of Declined and QNW Business</h2>
+				<p>The industry’s greatest blind spot is the information it throws away. Most insurers retain only bound accounts, losing insight into:</p>
+				<ul class="list-disc ml-6 text-slate-700">
+					<li>true market size</li>
+					<li>producer submission patterns</li>
+					<li>rejected but profitable opportunities</li>
+					<li>geographic and commodity demand signals</li>
+					<li>predictive trends in risk behavior</li>
+				</ul>
+				<p>Fleetidy preserves these insights permanently, reducing bias and enabling strategic decision-making.</p>
+			</section>
+
+			<section id="math" class="mb-8">
+				<h2 class="text-xl font-semibold">Mathematical Formulation of Risk</h2>
+				<p>Below are equations showing the contrast between traditional underwriting and Fleetidy’s empirical model.</p>
+
+				<h3 class="mt-4 font-semibold">Traditional (Subjective) Underwriting Model</h3>
+				<p>Risk is implicitly treated as the sum of the underwriter’s subjective estimations of:</p>
+				\begin{equation}
+				F_{\text{risk}} =
+				f(\text{Safety})
+				+ f(\text{Fleet Size})
+				+ f(\text{Commodity Mix})
+				+ f(\text{Loss History})
+				+ f(\text{Geography})
+				+ f(\text{Operations})
+				\end{equation}
+
+				<h3 class="mt-4 font-semibold">Fleetidy (Empirical, Coefficient-Weighted) Model</h3>
+				<p>Fleetidy introduces real, data-driven coefficients:</p>
+				\begin{equation}
+				F_{\text{risk}} =
+				A_1 \cdot \text{Safety} +
+				A_2 \cdot \text{Fleet Size} +
+				A_3 \cdot \text{Commodity Mix} +
+				A_4 \cdot \text{Loss History} +
+				A_5 \cdot \text{Geography} +
+                ...
+				A_n \cdot \text{Operations}
+				\end{equation}
+
+
+
+				<h4 class="mt-4 font-semibold"></h4>
+				\begin{equation}
+				F_{\text{risk}} = \sum_{i=1}^{n} A_i X_i
+				\end{equation}
+
+                <p>Where each coefficient is a real number determined by actuarial analysis of your portfolio once a statistically significant sample of data has been recorded:</p>
+				\[
+				A_i \in [0,1]
+				\]
+                <p>And each Factor: \[X_i\] is collected at time of application.
+			</section>
+
+			<section id="impact" class="mb-8">
+				<h2 class="text-xl font-semibold">Business Impact</h2>
+
+				<h3 class="mt-4 font-semibold">Pricing Precision</h3>
+				<p>Empirical coefficients eliminate subjective bias and create consistent pricing.</p>
+
+				<h3 class="mt-4 font-semibold">Portfolio Intelligence</h3>
+				<p>Real-time dashboards track concentration, drift, and emerging risk.</p>
+
+				<h3 class="mt-4 font-semibold">Strategic Triage</h3>
+				<p>High-fit accounts surface automatically; poor-fit risks are filtered instantly.</p>
+
+				<h3 class="mt-4 font-semibold">Reduced Volatility</h3>
+				<p>Empirical consistency stabilizes loss ratios.</p>
+
+				<h3 class="mt-4 font-semibold">Compounding Intelligence</h3>
+				<p>Every submission strengthens the model—regardless of whether it binds.</p>
+			</section>
+
+			<section id="conclusion" class="mb-12">
+				<h2 class="text-xl font-semibold">Conclusion</h2>
+				<p>Fleetidy transforms underwriting from a subjective art into a measurable science. By retaining all submissions and applying a mathematical equation of risk, insurers gain:</p>
+				<ul class="list-disc ml-6 text-slate-700">
+					<li>accuracy</li>
+					<li>transparency</li>
+					<li>consistency</li>
+					<li>strategic insight</li>
+					<li>competitive advantage</li>
+				</ul>
+				<p class="mt-4"><strong>Fleetidy makes cargo risk <em>quantifiable, knowable, and actionable</em>.</strong></p>
+			</section>
+
+			<footer class="text-sm text-slate-500">© Fleetidy</footer>
+		</main>
+	</body>
+</html>

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Underwriting Dashboard</title>
+    <meta name="description" content="fleetidy underwriting dashboard" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tailwind.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/uw-dashboard.js" defer></script>
+  </head>
+  <body class="font-sans bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900">
+    <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/70 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center px-6 py-4">
+        <nav class="ml-auto flex items-center gap-6 text-sm font-medium text-slate-600">
+          <a class="transition hover:text-brand-blue" href="index.html">Home</a>
+          <a class="transition hover:text-brand-blue" href="app.html">Application</a>
+          <div class="relative">
+            <button
+              id="dashboardToggle"
+              class="flex items-center gap-1 rounded-full border border-slate-300 px-4 py-2 text-xs tracking-[0.4em] text-slate-600 transition hover:border-brand-blue hover:text-brand-blue font-sans font-medium"
+              type="button"
+            >
+              DASHBOARDS
+              <svg
+                class="h-3 w-3 transform transition"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div
+              id="dashboardDropdown"
+              class="dropdown-panel pointer-events-none opacity-0 absolute right-0 mt-2 w-48 rounded-2xl p-3 text-sm font-semibold bg-white text-slate-600 border border-slate-200 transition-all duration-200 font-sans"
+              aria-hidden="true"
+            >
+              <a class="block rounded-xl px-3 py-2 hover:text-brand-blue font-sans" href="index.html#agency-dashboard">Agency Dashboard</a>
+              <a class="block rounded-xl px-3 py-2 hover:text-brand-blue font-sans" href="underwriting-dashboard.html">UW Dashboard</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-6 py-10">
+      <section class="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+        <div class="mb-8 flex flex-col gap-4">
+          <div class="flex items-start gap-4">
+            <img src="assets/logo3.png" alt="fleetidy logo" class="h-16 w-16 object-contain" />
+            <div>
+              <h1 class="text-2xl font-semibold text-slate-900">Underwriting Dashboard</h1>
+              <div class="mt-2 text-sm text-slate-600">
+                <p class="font-semibold text-slate-900">Jane DeBlazio</p>
+                <p>Summit Risk Partners</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-3">
+            <div class="grid grid-cols-1 gap-3 text-sm text-slate-700 sm:grid-cols-3">
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm flex items-center justify-between">
+                <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold mb-0">Bound fleets</p>
+                <div class="text-xl font-semibold text-brand-blue">128</div>
+              </div>
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm flex items-center justify-between">
+                <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold mb-0">Avg. FRED Score</p>
+                <div class="text-xl font-semibold text-brand-blue">B+</div>
+              </div>
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm flex items-center justify-between">
+                <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold mb-0">Unquoted Submissions</p>
+                <div class="text-xl font-semibold text-brand-blue">14</div>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <input
+                id="uwSearchInput"
+                type="text"
+                placeholder="Search by policy #, insured, or status"
+                class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-slate-200">
+          <table class="min-w-full divide-y divide-slate-200 text-sm" id="uwTable">
+            <thead class="bg-slate-50 text-left font-semibold text-slate-700">
+              <tr>
+                <th class="px-4 py-3">Policy #</th>
+                <th class="px-4 py-3">Effective Date</th>
+                <th class="px-4 py-3">Insured Name</th>
+                <th class="px-4 py-3">FRED Score</th>
+                <th class="px-4 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 bg-white">
+              <tr>
+                <td class="px-4 py-3 font-semibold text-slate-900">MTC-10234</td>
+                <td class="px-4 py-3 text-slate-700">07-01-2024</td>
+                <td class="px-4 py-3 text-slate-700">Summit Freight Lines</td>
+                <td class="px-4 py-3 text-slate-700">B+</td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                    Active
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-4 py-3 font-semibold text-slate-900">MTC-10235</td>
+                <td class="px-4 py-3 text-slate-700">06-15-2024</td>
+                <td class="px-4 py-3 text-slate-700">Riverfront Logistics LLC</td>
+                <td class="px-4 py-3 text-slate-700">B</td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                    <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+                    Pending
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-4 py-3 font-semibold text-slate-900">MTC-10236</td>
+                <td class="px-4 py-3 text-slate-700">08-01-2024</td>
+                <td class="px-4 py-3 text-slate-700">Metro Cargo Partners</td>
+                <td class="px-4 py-3 text-slate-700">B-</td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    <span class="h-2 w-2 rounded-full bg-slate-500"></span>
+                    Draft
+                  </span>
+                </td>
+              </tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10237</td><td class="px-4 py-3 text-slate-700">08-15-2024</td><td class="px-4 py-3 text-slate-700">Highway Haulers Inc.</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10238</td><td class="px-4 py-3 text-slate-700">08-20-2024</td><td class="px-4 py-3 text-slate-700">Blue Ridge Freight</td><td class="px-4 py-3 text-slate-700">B+</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10239</td><td class="px-4 py-3 text-slate-700">09-01-2024</td><td class="px-4 py-3 text-slate-700">Crosswind Logistics</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"><span class="h-2 w-2 rounded-full bg-amber-400"></span>Pending</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10240</td><td class="px-4 py-3 text-slate-700">09-05-2024</td><td class="px-4 py-3 text-slate-700">Iron Peak Carriers</td><td class="px-4 py-3 text-slate-700">B-</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"><span class="h-2 w-2 rounded-full bg-slate-500"></span>Draft</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10241</td><td class="px-4 py-3 text-slate-700">09-12-2024</td><td class="px-4 py-3 text-slate-700">Harborline Transport</td><td class="px-4 py-3 text-slate-700">A-</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10242</td><td class="px-4 py-3 text-slate-700">09-20-2024</td><td class="px-4 py-3 text-slate-700">Frontier Freightways</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"><span class="h-2 w-2 rounded-full bg-amber-400"></span>Pending</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10243</td><td class="px-4 py-3 text-slate-700">09-28-2024</td><td class="px-4 py-3 text-slate-700">Evergreen Cargo</td><td class="px-4 py-3 text-slate-700">B+</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10244</td><td class="px-4 py-3 text-slate-700">10-02-2024</td><td class="px-4 py-3 text-slate-700">Western Range Lines</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"><span class="h-2 w-2 rounded-full bg-slate-500"></span>Draft</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10245</td><td class="px-4 py-3 text-slate-700">10-10-2024</td><td class="px-4 py-3 text-slate-700">Tri-State Haulage</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10246</td><td class="px-4 py-3 text-slate-700">10-15-2024</td><td class="px-4 py-3 text-slate-700">Silver Creek Freight</td><td class="px-4 py-3 text-slate-700">A-</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10247</td><td class="px-4 py-3 text-slate-700">10-22-2024</td><td class="px-4 py-3 text-slate-700">Midwest Carrier Group</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"><span class="h-2 w-2 rounded-full bg-amber-400"></span>Pending</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10248</td><td class="px-4 py-3 text-slate-700">11-01-2024</td><td class="px-4 py-3 text-slate-700">Atlas Road Transport</td><td class="px-4 py-3 text-slate-700">B+</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10249</td><td class="px-4 py-3 text-slate-700">11-08-2024</td><td class="px-4 py-3 text-slate-700">Coastal Freight Lines</td><td class="px-4 py-3 text-slate-700">B-</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"><span class="h-2 w-2 rounded-full bg-slate-500"></span>Draft</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10250</td><td class="px-4 py-3 text-slate-700">11-15-2024</td><td class="px-4 py-3 text-slate-700">Liberty Logistics</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10251</td><td class="px-4 py-3 text-slate-700">11-22-2024</td><td class="px-4 py-3 text-slate-700">Red Oak Transport</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"><span class="h-2 w-2 rounded-full bg-amber-400"></span>Pending</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10252</td><td class="px-4 py-3 text-slate-700">12-01-2024</td><td class="px-4 py-3 text-slate-700">Beacon Freight</td><td class="px-4 py-3 text-slate-700">A-</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10253</td><td class="px-4 py-3 text-slate-700">12-08-2024</td><td class="px-4 py-3 text-slate-700">Northeast Freightways</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"><span class="h-2 w-2 rounded-full bg-slate-500"></span>Draft</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10254</td><td class="px-4 py-3 text-slate-700">12-15-2024</td><td class="px-4 py-3 text-slate-700">Prairie Line Logistics</td><td class="px-4 py-3 text-slate-700">B+</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10255</td><td class="px-4 py-3 text-slate-700">12-22-2024</td><td class="px-4 py-3 text-slate-700">Pacific Crest Cargo</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"><span class="h-2 w-2 rounded-full bg-amber-400"></span>Pending</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10256</td><td class="px-4 py-3 text-slate-700">12-29-2024</td><td class="px-4 py-3 text-slate-700">Great Lakes Freight</td><td class="px-4 py-3 text-slate-700">B-</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"><span class="h-2 w-2 rounded-full bg-slate-500"></span>Draft</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10257</td><td class="px-4 py-3 text-slate-700">01-05-2025</td><td class="px-4 py-3 text-slate-700">Summit Peak Transport</td><td class="px-4 py-3 text-slate-700">A-</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10258</td><td class="px-4 py-3 text-slate-700">01-12-2025</td><td class="px-4 py-3 text-slate-700">Canyon Ridge Logistics</td><td class="px-4 py-3 text-slate-700">B+</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"><span class="h-2 w-2 rounded-full bg-amber-400"></span>Pending</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10259</td><td class="px-4 py-3 text-slate-700">01-20-2025</td><td class="px-4 py-3 text-slate-700">Heritage Cargo Co.</td><td class="px-4 py-3 text-slate-700">B</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Active</span></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-slate-900">MTC-10260</td><td class="px-4 py-3 text-slate-700">01-28-2025</td><td class="px-4 py-3 text-slate-700">Lakeshore Logistics</td><td class="px-4 py-3 text-slate-700">B-</td><td class="px-4 py-3"><span class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"><span class="h-2 w-2 rounded-full bg-slate-500"></span>Draft</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-slate-200 bg-white/70">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-xs tracking-[0.4em] text-slate-500 md:flex-row md:items-center md:justify-between">
+        <span>© 2026 fleetidy. all rights reserved.</span>
+        <div class="flex gap-4">
+          <a class="transition hover:text-brand-blue" href="#privacy">Privacy</a>
+          <a class="transition hover:text-brand-blue" href="#terms">Terms</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
