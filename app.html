@@ -10,6 +10,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/tailwind.css" />
     <link rel="stylesheet" href="css/forms.css" />
+    <style>
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      input[type="date"],
+      input[type="tel"],
+      select,
+      textarea {
+        background-color: #6394e8;
+      }
+      input[readonly],
+      select[readonly],
+      textarea[readonly] {
+        background-color: #edf2fb;
+      }
+      .radius-percentage {
+        text-align: center;
+      }
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="js/tailwind-config.js"></script>
     <script>
@@ -43,8 +62,169 @@
           });
         }
 
+        const percentInputs = document.querySelectorAll(".radius-percentage");
+        const totalDisplay = document.getElementById("radiusTotalDisplay");
+        const trailerCheckbox = document.getElementById("optionalTrailerInterchange");
+        const trailerDetails = document.getElementById("optionalTrailerDetails");
+        const refrigerationCheckbox = document.getElementById("optionalRefrigeration");
+        const refrigerationDetails = document.getElementById("optionalRefrigerationDetails");
+
+        const getNumericValue = (value) => {
+          const digits = value.replace(/[^0-9]/g, "");
+          if (!digits) return 0;
+          return Math.min(100, parseInt(digits, 10));
+        };
+
+        const updateRadiusTotal = () => {
+          if (!totalDisplay) return;
+          let total = 0;
+          percentInputs.forEach((input) => {
+            total += getNumericValue(input.value);
+          });
+          totalDisplay.textContent = `Total Radius Allocation: ${total}%`;
+          totalDisplay.classList.remove(
+            "text-red-600",
+            "text-emerald-600",
+            "text-slate-600"
+          );
+          const colorClass =
+            total > 100
+              ? "text-red-600"
+              : total === 100
+              ? "text-emerald-600"
+              : "text-slate-600";
+          totalDisplay.classList.add(colorClass);
+        };
+
+        percentInputs.forEach((input) => {
+          const formatValue = (raw) => {
+            const digits = raw.replace(/[^0-9]/g, "");
+            if (!digits) {
+              input.value = "";
+              updateRadiusTotal();
+              return;
+            }
+            const numericValue = Math.min(100, parseInt(digits, 10));
+            const formatted = numericValue + "%";
+            input.value = formatted;
+            const cursorPos = formatted.length - 1;
+            if (document.activeElement === input) {
+              requestAnimationFrame(() =>
+                input.setSelectionRange(cursorPos, cursorPos)
+              );
+            }
+            updateRadiusTotal();
+          };
+
+          input.addEventListener("focus", () => {
+            const digits = input.value.replace(/[^0-9]/g, "");
+            input.value = digits;
+            if (digits) {
+              requestAnimationFrame(() =>
+                input.setSelectionRange(digits.length, digits.length)
+              );
+            }
+            updateRadiusTotal();
+          });
+
+          input.addEventListener("input", () => {
+            if (!input.value.trim()) {
+              input.value = "";
+              updateRadiusTotal();
+              return;
+            }
+            formatValue(input.value);
+          });
+
+          input.addEventListener("blur", () => {
+            if (!input.value.trim()) {
+              input.value = "";
+              updateRadiusTotal();
+              return;
+            }
+            formatValue(input.value);
+          });
+        });
+
+        const perVehicleSelect = document.getElementById("limitPerVehicle");
+        const anyOneLossSelect = document.getElementById("limitAnyOneLoss");
+
+        function selectAnyOneLossAtLeast(minValue) {
+          if (!anyOneLossSelect) return;
+          let chosenOption = anyOneLossSelect.options[anyOneLossSelect.options.length - 1];
+          for (const option of anyOneLossSelect.options) {
+            const optionValue = parseInt(option.value, 10);
+            if (!Number.isNaN(optionValue)) {
+              if (optionValue >= minValue) {
+                chosenOption = option;
+                break;
+              }
+              chosenOption = option;
+            }
+          }
+          anyOneLossSelect.value = chosenOption.value;
+        }
+
+        function enforceAnyOneLossDoubleMinimum() {
+          if (!perVehicleSelect || !anyOneLossSelect) return;
+          const perVehicleValue = parseInt(perVehicleSelect.value, 10);
+          if (Number.isNaN(perVehicleValue) || perVehicleValue <= 0) return;
+          selectAnyOneLossAtLeast(perVehicleValue * 2);
+        }
+
+        function ensureAnyOneLossNotBelowPerVehicle() {
+          if (!perVehicleSelect || !anyOneLossSelect) return;
+          const perVehicleValue = parseInt(perVehicleSelect.value, 10);
+          const anyOneLossValue = parseInt(anyOneLossSelect.value, 10);
+          if (
+            Number.isNaN(perVehicleValue) ||
+            perVehicleValue <= 0 ||
+            Number.isNaN(anyOneLossValue)
+          ) {
+            return;
+          }
+          if (anyOneLossValue < perVehicleValue) {
+            selectAnyOneLossAtLeast(perVehicleValue);
+          }
+        }
+
+        if (perVehicleSelect && anyOneLossSelect) {
+          perVehicleSelect.addEventListener("change", () => {
+            enforceAnyOneLossDoubleMinimum();
+            ensureAnyOneLossNotBelowPerVehicle();
+          });
+          anyOneLossSelect.addEventListener("change", ensureAnyOneLossNotBelowPerVehicle);
+          enforceAnyOneLossDoubleMinimum();
+          ensureAnyOneLossNotBelowPerVehicle();
+        }
+
+        const setupToggle = (checkbox, details) => {
+          if (!checkbox || !details) return;
+          const toggle = () => {
+            details.classList.toggle("hidden", !checkbox.checked);
+          };
+          checkbox.addEventListener("change", toggle);
+          toggle();
+        };
+
+        setupToggle(trailerCheckbox, trailerDetails);
+        setupToggle(refrigerationCheckbox, refrigerationDetails);
+
+        const refrigerationLimitSelect = document.getElementById("refrigerationLimit");
+
+        function syncRefrigerationLimit() {
+          if (!refrigerationLimitSelect || !perVehicleSelect) return;
+          refrigerationLimitSelect.value = perVehicleSelect.value || "";
+        }
+
+        if (refrigerationLimitSelect) {
+          perVehicleSelect?.addEventListener("change", syncRefrigerationLimit);
+          syncRefrigerationLimit();
+        }
+
         // Initialize on load
         updateCarrierRevenueRows();
+        updateRadiusTotal();
 
         // Update on change
         carrierCheckboxes.forEach((cb) => {
@@ -725,6 +905,55 @@
               </label>
             </div>
           </div>
+          <div class="mt-8 border-b border-dashed border-slate-300"></div>
+          <div class="mt-6 space-y-4">
+            <h3 class="text-sm font-semibold text-slate-700">Radius of Operations</h3>
+            <div class="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-4">
+              <label class="flex w-full flex-col gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-brand-blue">
+                <span class="whitespace-nowrap font-medium">Local &mdash; up to 100 miles</span>
+                <input
+                  type="text"
+                  name="radiusLocal"
+                  inputmode="numeric"
+                  class="radius-percentage w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  placeholder="%"
+                />
+              </label>
+              <label class="flex w-full flex-col gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-brand-blue">
+                <span class="whitespace-nowrap font-medium">Regional &mdash; 100 to 250 miles</span>
+                <input
+                  type="text"
+                  name="radiusRegional"
+                  inputmode="numeric"
+                  class="radius-percentage w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  placeholder="%"
+                />
+              </label>
+              <label class="flex w-full flex-col gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-brand-blue">
+                <span class="whitespace-nowrap font-medium">Extended &mdash; 250 to 500 miles</span>
+                <input
+                  type="text"
+                  name="radiusExtended"
+                  inputmode="numeric"
+                  class="radius-percentage w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  placeholder="%"
+                />
+              </label>
+              <label class="flex w-full flex-col gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left transition hover:border-brand-blue">
+                <span class="whitespace-nowrap font-medium">Long-Haul &mdash; 500+ miles</span>
+                <input
+                  type="text"
+                  name="radiusLongHaul"
+                  inputmode="numeric"
+                  class="radius-percentage w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  placeholder="%"
+                />
+              </label>
+            </div>
+            <p id="radiusTotalDisplay" class="text-sm font-semibold text-slate-600">
+              Total Radius Allocation: 0%
+            </p>
+          </div>
         </section>
 
         <!-- Limits -->
@@ -759,6 +988,83 @@
                 <option>$5,000</option>
                 <option>$10,000</option>
               </select>
+            </div>
+          </div>
+          <div class="mt-6 border-t border-dashed border-slate-200 pt-6">
+            <p class="mb-4 text-sm font-semibold uppercase tracking-wide text-slate-600">Optional Coverages</p>
+            <div class="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-3">
+              <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 transition hover:border-brand-blue">
+                <label class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="optionalCoverage"
+                    value="trailerInterchange"
+                    id="optionalTrailerInterchange"
+                    class="h-4 w-4 rounded border-slate-300"
+                  />
+                  <span>Trailer Interchange</span>
+                </label>
+                <div id="optionalTrailerDetails" class="mt-4 hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <div class="grid grid-cols-1 gap-3">
+                    <div>
+                      <label for="trailerLimit" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">Limit</label>
+                      <select id="trailerLimit" class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20">
+                        <option value="">Select Limit</option>
+                        <option value="50000">$50,000</option>
+                        <option value="100000">$100,000</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="trailerDeductible" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">Deductible</label>
+                      <select id="trailerDeductible" class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20">
+                        <option value="">Select Deductible</option>
+                        <option value="5000">$5,000</option>
+                        <option value="10000">$10,000</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 transition hover:border-brand-blue">
+                <label class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="optionalCoverage"
+                    value="refrigerationBreakdown"
+                    id="optionalRefrigeration"
+                    class="h-4 w-4 rounded border-slate-300"
+                  />
+                  <span>Refrigeration Breakdown</span>
+                </label>
+                <div id="optionalRefrigerationDetails" class="mt-4 hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <div class="grid grid-cols-1 gap-3">
+                    <div>
+                      <label for="refrigerationLimit" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">Limit</label>
+                      <select id="refrigerationLimit" class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20">
+                        <option value="">Select Limit</option>
+                        <option value="100000">$100,000</option>
+                        <option value="250000">$250,000</option>
+                        <option value="500000">$500,000</option>
+                        <option value="1000000">$1,000,000</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="refrigerationDeductible" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600">Deductible</label>
+                      <select id="refrigerationDeductible" class="w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20">
+                        <option value="">Select Deductible</option>
+                        <option value="2500">$2,500</option>
+                        <option value="5000">$5,000</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <label class="flex flex-col gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 transition hover:border-brand-blue">
+                <span class="flex items-center gap-2 text-sm text-slate-800">
+                  <input type="checkbox" name="optionalCoverage" value="foodSafety" class="h-4 w-4 rounded border-slate-300" />
+                  <span>Food Safety Modernization</span>
+                </span>
+              </label>
             </div>
           </div>
         </section>
