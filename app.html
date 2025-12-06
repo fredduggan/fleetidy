@@ -36,6 +36,25 @@
       .radius-percentage {
         text-align: center;
       }
+      @media print {
+        body {
+          zoom: 0.75;
+        }
+        section {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        header {
+          display: none !important;
+        }
+        .print-hidden {
+          display: none !important;
+        }
+        .print-break-after {
+          page-break-after: always;
+          break-after: page;
+        }
+      }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="js/tailwind-config.js"></script>
@@ -230,6 +249,34 @@
           syncRefrigerationLimit();
         }
 
+        const theftRadios = document.querySelectorAll(".theft-toggle");
+        function updateTheftDetail(radio) {
+          const targetId = radio.dataset.target;
+          if (!targetId) return;
+          const container = document.getElementById(targetId);
+          if (!container) return;
+          const textarea = container.querySelector("textarea");
+          const show = radio.value === "yes" && radio.checked;
+          container.classList.toggle("hidden", !show);
+          if (textarea) {
+            if (show) {
+              textarea.removeAttribute("readonly");
+              textarea.classList.remove("bg-slate-50");
+              textarea.classList.add("bg-white");
+            } else {
+              textarea.setAttribute("readonly", "");
+              textarea.classList.add("bg-slate-50");
+              textarea.classList.remove("bg-white");
+            }
+          }
+        }
+        theftRadios.forEach((radio) => {
+          radio.addEventListener("change", () => updateTheftDetail(radio));
+          if (radio.checked) {
+            updateTheftDetail(radio);
+          }
+        });
+
         // Initialize on load
         updateCarrierRevenueRows();
         updateRadiusTotal();
@@ -238,6 +285,14 @@
         carrierCheckboxes.forEach((cb) => {
           cb.addEventListener("change", updateCarrierRevenueRows);
         });
+
+        const printButton = document.getElementById("printAppButton");
+        if (printButton) {
+          printButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            window.print();
+          });
+        }
       });
     </script>
   </head>
@@ -282,7 +337,7 @@
       <!-- Form -->
       <form id="mtcForm" class="space-y-8">
         <!-- Agency Information Section -->
-        <section class="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+        <section class="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm print-break-after">
           <div class="mb-6 flex items-center gap-4">
             <img src="assets/logo3.png" alt="Fleetidy Logo" class="h-16 w-16 object-contain" loading="lazy" />
             <div class="flex flex-col">
@@ -1315,15 +1370,15 @@
               <p class="text-sm font-semibold text-slate-800">1. Are vehicles ever left loaded and unattended?</p>
               <div class="mt-2 flex items-center gap-4 text-sm text-slate-700">
                 <label class="inline-flex items-center gap-2">
-                  <input type="radio" name="unattendedVehicles" value="yes" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="unattendedDescription" />
+                  <input type="radio" name="unattendedVehicles" value="yes" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="unattendedDetails" />
                   <span>Yes</span>
                 </label>
                 <label class="inline-flex items-center gap-2">
-                  <input type="radio" name="unattendedVehicles" value="no" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="unattendedDescription" checked />
+                  <input type="radio" name="unattendedVehicles" value="no" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="unattendedDetails" checked />
                   <span>No</span>
                 </label>
               </div>
-              <div class="mt-3">
+              <div class="mt-3 theft-details hidden" id="unattendedDetails">
                 <label for="unattendedDescription" class="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">If yes, please describe</label>
                 <textarea id="unattendedDescription" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900" rows="3" placeholder="Provide details" readonly></textarea>
               </div>
@@ -1333,15 +1388,15 @@
               <p class="text-sm font-semibold text-slate-800">2. Does applicant ever leave loaded trailers detached from power units?</p>
               <div class="mt-2 flex items-center gap-4 text-sm text-slate-700">
                 <label class="inline-flex items-center gap-2">
-                  <input type="radio" name="detachedTrailers" value="yes" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="detachedDescription" />
+                  <input type="radio" name="detachedTrailers" value="yes" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="detachedDetails" />
                   <span>Yes</span>
                 </label>
                 <label class="inline-flex items-center gap-2">
-                  <input type="radio" name="detachedTrailers" value="no" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="detachedDescription" checked />
+                  <input type="radio" name="detachedTrailers" value="no" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="detachedDetails" checked />
                   <span>No</span>
                 </label>
               </div>
-              <div class="mt-3">
+              <div class="mt-3 theft-details hidden" id="detachedDetails">
                 <label for="detachedDescription" class="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">If yes, please describe</label>
                 <textarea id="detachedDescription" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900" rows="3" placeholder="Provide details" readonly></textarea>
               </div>
@@ -1416,13 +1471,13 @@
         </div>
 
         <!-- Submit Button -->
-        <div class="flex justify-center gap-4 py-8">
+        <div class="flex justify-center gap-4 py-8 print-hidden">
           <button type="submit" class="rounded-full border border-slate-300 px-8 py-3 text-sm font-semibold tracking-[0.4em] text-slate-600 transition hover:border-brand-blue hover:text-brand-blue">
             Submit Application
           </button>
-          <a href="#" class="rounded-full border border-slate-300 px-8 py-3 text-sm font-semibold tracking-[0.4em] text-slate-600 transition hover:border-brand-blue hover:text-brand-blue">
-            Save Draft
-          </a>
+          <button id="printAppButton" type="button" class="rounded-full border border-slate-300 px-8 py-3 text-sm font-semibold tracking-[0.4em] text-slate-600 transition hover:border-brand-blue hover:text-brand-blue">
+            Print App
+          </button>
         </div>
       </form>
     </main>
