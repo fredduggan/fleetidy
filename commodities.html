@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Commodities Worksheet | fleetidy</title>
+    <meta name="description" content="Detailed commodities worksheet for cargo applications" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tailwind.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+  </head>
+  <body class="font-sans bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900">
+    <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur">
+      <div class="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.3em] text-slate-400">Worksheet</p>
+          <h1 class="text-xl font-semibold text-slate-900">Commodities Mix</h1>
+        </div>
+        <a href="app.html" class="rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-slate-600 transition hover:border-brand-blue hover:text-brand-blue">Back to App</a>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-4xl px-6 py-8">
+      <section class="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm">
+        <p class="text-sm text-slate-600">
+          Use this worksheet to capture the mix of commodities hauled. Enter whole percentages only; values automatically format as you type. Average and Max values are optional.
+        </p>
+        <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Summary</p>
+              <div id="pageCommoditySummary" class="mt-2 flex flex-wrap gap-2 text-xs text-slate-700">
+                <span class="text-slate-500">No commodities entered yet.</span>
+              </div>
+              <p id="percentageTotalDisplay" class="mt-2 text-xs font-semibold text-slate-500">Total: 0%</p>
+            </div>
+            <button
+              id="clearCommodities"
+              type="button"
+              class="rounded-full border border-rose-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-rose-600 transition hover:border-rose-400 hover:text-rose-700"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+        <div id="commoditiesAccordion" class="mt-6 space-y-4"></div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const STORAGE_KEY = "fleetidyCommodityMix";
+        const GROUPS = [
+          { major: "Agricultural Commodities", minors: ["Row Crops", "Specialty Crops", "Feed Ingredients", "Livestock", "Seed & Inputs"] },
+          { major: "Fresh Produce", minors: ["Leafy Greens", "Root Vegetables", "Berries", "Citrus", "Tropical Fruit"] },
+          { major: "Frozen Foods", minors: ["Frozen Produce", "Prepared Meals", "Bakery Items", "Desserts", "Vegetable Blends"] },
+          { major: "Meat & Seafood", minors: ["Beef", "Pork", "Poultry", "Seafood", "Processed Meats"] },
+          { major: "Dairy & Perishables", minors: ["Fluid Milk", "Cheese", "Yogurt", "Ice Cream", "Eggs"] },
+          { major: "Bakery & Confection", minors: ["Bread", "Pastries", "Snack Cakes", "Candy", "Chocolate"] },
+          { major: "Beverages", minors: ["Soft Drinks", "Beer & Wine", "Spirits", "Energy Drinks", "Bottled Water"] },
+          { major: "Consumer Packaged Goods", minors: ["Paper Products", "Cleaning Supplies", "Personal Care", "Pet Food", "Household Essentials"] },
+          { major: "Paper & Packaging", minors: ["Corrugated Boxes", "Printing Paper", "Tissue", "Pulp", "Specialty Packaging"] },
+          { major: "Plastics & Resins", minors: ["Resin Pellets", "Film & Wrap", "Plastic Bottles", "PVC Pipe", "Finished Plastics"] },
+          { major: "Chemicals & Hazmat", minors: ["Industrial Chemicals", "Paint & Coatings", "Fertilizers", "Cleaning Chemicals", "Hazardous Materials"] },
+          { major: "Building Materials", minors: ["Lumber", "Roofing", "Drywall", "Glass", "Hardware"] },
+          { major: "Metals", minors: ["Steel Coils", "Aluminum", "Copper", "Rebar", "Scrap Metal"] },
+          { major: "Energy & Petroleum", minors: ["Crude Oil", "Refined Fuels", "Propane", "Lubricants", "Renewable Components"] },
+          { major: "Mining & Aggregates", minors: ["Coal", "Ore Concentrates", "Sand & Gravel", "Aggregate", "Cement"] },
+          { major: "Forestry & Wood", minors: ["Logs", "Pulpwood", "Wood Chips", "Mulch", "Biofuel Feedstock"] },
+          { major: "Automotive Parts", minors: ["OEM Parts", "Aftermarket Parts", "Tires", "Batteries", "Glass"] },
+          { major: "Finished Vehicles", minors: ["Passenger Cars", "Light Trucks", "Heavy Equipment", "Motorcycles", "Specialty Vehicles"] },
+          { major: "Industrial Machinery", minors: ["Construction Equipment", "Agricultural Equipment", "Generators", "Compressors", "Machine Parts"] },
+          { major: "Electronics & Technology", minors: ["Computers", "Consumer Electronics", "Telecom Gear", "Data Center Equipment", "Components"] },
+          { major: "Appliances & HVAC", minors: ["Major Appliances", "Small Appliances", "HVAC Units", "Commercial Kitchen", "Laundry Equipment"] },
+          { major: "Furniture & Fixtures", minors: ["Home Furniture", "Office Furniture", "Mattresses", "Cabinetry", "Store Fixtures"] },
+          { major: "Medical & Pharmaceutical", minors: ["Pharmaceuticals", "Medical Devices", "Hospital Supplies", "Laboratory Equipment", "PPE"] },
+          { major: "Retail & E-Commerce", minors: ["General Merchandise", "Club Store Freight", "Small Parcel", "Reverse Logistics", "Seasonal Goods"] },
+          { major: "Textiles & Apparel", minors: ["Fabric Rolls", "Finished Apparel", "Footwear", "Accessories", "Protective Gear"] },
+          { major: "Household Goods & Moving", minors: ["Crated HHG", "Personal Effects", "Antiques", "Artwork", "Pianos"] },
+          { major: "Waste & Recycling", minors: ["Municipal Waste", "Construction Debris", "Recyclable Paper", "Recyclable Plastics", "Scrap Vehicles"] },
+          { major: "High Value & Specie", minors: ["Jewelry", "Currency", "Precious Metals", "Artwork", "Collector Items"] },
+          { major: "Government & Defense", minors: ["Defense Equipment", "Munitions", "Uniforms", "Disaster Supplies", "Secure Documents"] }
+        ];
+
+        const accordion = document.getElementById("commoditiesAccordion");
+        const summary = document.getElementById("pageCommoditySummary");
+        const totalDisplay = document.getElementById("percentageTotalDisplay");
+        let store = loadStore();
+
+        function loadStore() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            return typeof parsed === "object" && parsed !== null ? parsed : {};
+          } catch (err) {
+            return {};
+          }
+        }
+
+        function saveStore() {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+          } catch (err) {
+            // ignore
+          }
+        }
+
+        function formatPercentInput(input) {
+          const rawDigits = input.value.replace(/%/g, "").replace(/[^0-9]/g, "");
+          if (!rawDigits) {
+            input.value = "";
+            return "";
+          }
+          const numeric = Math.min(100, parseInt(rawDigits, 10));
+          const stringVal = String(numeric);
+          input.value = `${stringVal}%`;
+          if (document.activeElement === input) {
+            requestAnimationFrame(() => {
+              input.setSelectionRange(stringVal.length, stringVal.length);
+            });
+          }
+          return stringVal;
+        }
+
+        function refreshSummary() {
+          summary.innerHTML = "";
+          const entries = Object.values(store || {});
+          if (!entries.length) {
+            const placeholder = document.createElement("span");
+            placeholder.className = "text-slate-500";
+            placeholder.textContent = "No commodities entered yet.";
+            summary.appendChild(placeholder);
+            return;
+          }
+          entries.forEach((entry) => {
+            const chip = document.createElement("span");
+            chip.className = "inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700";
+            chip.textContent = `${entry.minor} (${entry.value}%)`;
+            summary.appendChild(chip);
+          });
+        }
+
+        function updateTotalDisplay() {
+          if (!totalDisplay) return;
+          const total = Object.values(store || {}).reduce((acc, entry) => acc + (parseInt(entry.value, 10) || 0), 0);
+          totalDisplay.textContent = `Total: ${total}%`;
+          totalDisplay.classList.remove("text-slate-500", "text-emerald-600", "text-red-600");
+          if (total === 100) {
+            totalDisplay.classList.add("text-emerald-600");
+          } else if (total > 100) {
+            totalDisplay.classList.add("text-red-600");
+          } else {
+            totalDisplay.classList.add("text-slate-500");
+          }
+        }
+
+        function clearAll() {
+          store = {};
+          saveStore();
+          accordion.querySelectorAll("input").forEach((input) => (input.value = ""));
+          refreshSummary();
+          updateTotalDisplay();
+          cards.forEach(({ updatePreview }) => updatePreview());
+        }
+
+        const cards = [];
+
+        GROUPS.forEach((group) => {
+          const card = document.createElement("div");
+          card.className = "rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm";
+          const header = document.createElement("button");
+          header.type = "button";
+          header.className = "flex w-full items-center justify-between gap-3 text-left text-sm font-semibold text-slate-900";
+          header.innerHTML = `<span class="group-title">${group.major}</span><span class="text-xs text-slate-500">Show</span>`;
+          header.setAttribute("aria-expanded", "false");
+          card.appendChild(header);
+
+          const list = document.createElement("div");
+          list.className = "mt-3 hidden flex-col gap-3";
+          const listBody = document.createElement("div");
+          listBody.className = "flex flex-col gap-3";
+          group.minors.forEach((minor) => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700";
+            const span = document.createElement("p");
+            span.className = "text-sm font-medium text-slate-800";
+            span.textContent = minor;
+            const inputsRow = document.createElement("div");
+            inputsRow.className = "mt-2 grid gap-3 md:grid-cols-3";
+
+            const percentInput = document.createElement("input");
+            percentInput.type = "text";
+            percentInput.inputMode = "numeric";
+            percentInput.placeholder = "%";
+            percentInput.className = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20";
+
+            const avgInput = document.createElement("input");
+            avgInput.type = "text";
+            avgInput.inputMode = "numeric";
+            avgInput.placeholder = "Avg Value";
+            avgInput.className = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20";
+
+            const maxInput = document.createElement("input");
+            maxInput.type = "text";
+            maxInput.inputMode = "numeric";
+            maxInput.placeholder = "Max Value";
+            maxInput.className = "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20";
+
+            const key = `${group.major}|${minor}`;
+            percentInput.dataset.key = key;
+            percentInput.dataset.minor = minor;
+            percentInput.dataset.major = group.major;
+            avgInput.dataset.key = key;
+            maxInput.dataset.key = key;
+
+            percentInput.addEventListener("input", (event) => {
+              const digits = formatPercentInput(event.target);
+              if (digits) {
+                store[key] = {
+                  ...(store[key] || { major: group.major, minor }),
+                  value: digits
+                };
+              } else {
+                delete store[key];
+              }
+              saveStore();
+              refreshSummary();
+              updateTotalDisplay();
+              updatePreview();
+            });
+
+            avgInput.addEventListener("input", (event) => {
+              const digits = event.target.value.replace(/[^0-9]/g, "");
+              event.target.value = digits ? `$${digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}` : "";
+              if (digits) {
+                store[key] = {
+                  ...(store[key] || { major: group.major, minor }),
+                  average: digits
+                };
+              } else if (store[key]) {
+                delete store[key].average;
+                if (!store[key].value && !store[key].max) delete store[key];
+              }
+              saveStore();
+              updatePreview();
+            });
+
+            maxInput.addEventListener("input", (event) => {
+              const digits = event.target.value.replace(/[^0-9]/g, "");
+              event.target.value = digits ? `$${digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}` : "";
+              if (digits) {
+                store[key] = {
+                  ...(store[key] || { major: group.major, minor }),
+                  max: digits
+                };
+              } else if (store[key]) {
+                delete store[key].max;
+                if (!store[key].value && !store[key].average) delete store[key];
+              }
+              saveStore();
+              updatePreview();
+            });
+
+            if (store[key]?.value) {
+              percentInput.value = `${store[key].value}%`;
+            }
+            if (store[key]?.average) {
+              avgInput.value = `$${store[key].average.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+            }
+            if (store[key]?.max) {
+              maxInput.value = `$${store[key].max.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+            }
+
+            const percentLabel = document.createElement("label");
+            percentLabel.className = "flex flex-col text-xs font-semibold uppercase tracking-[0.2em] text-slate-500";
+            percentLabel.textContent = "Percent";
+            percentLabel.appendChild(percentInput);
+
+            const avgLabel = document.createElement("label");
+            avgLabel.className = "flex flex-col text-xs font-semibold uppercase tracking-[0.2em] text-slate-500";
+            avgLabel.textContent = "Avg Value";
+            avgLabel.appendChild(avgInput);
+
+            const maxLabel = document.createElement("label");
+            maxLabel.className = "flex flex-col text-xs font-semibold uppercase tracking-[0.2em] text-slate-500";
+            maxLabel.textContent = "Max Value";
+            maxLabel.appendChild(maxInput);
+
+            inputsRow.appendChild(percentLabel);
+            inputsRow.appendChild(avgLabel);
+            inputsRow.appendChild(maxLabel);
+
+            wrapper.appendChild(span);
+            wrapper.appendChild(inputsRow);
+            listBody.appendChild(wrapper);
+          });
+          const collapsedPreview = document.createElement("div");
+          collapsedPreview.className = "mt-2 hidden flex-wrap gap-2 text-xs text-slate-600";
+          const previewList = collapsedPreview;
+          card.appendChild(collapsedPreview);
+          list.appendChild(listBody);
+          card.appendChild(list);
+
+          header.addEventListener("click", () => {
+            const expanded = header.getAttribute("aria-expanded") === "true";
+            header.setAttribute("aria-expanded", expanded ? "false" : "true");
+            header.querySelector("span:last-child").textContent = expanded ? "Show" : "Hide";
+            list.classList.toggle("hidden", expanded);
+            collapsedPreview.classList.toggle("hidden", !expanded ? true : !previewList.childElementCount);
+          });
+
+          function createPreviewChip(entry) {
+            const details = [`${entry.value}%`];
+            if (entry.average) details.push(`Avg $${entry.average.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`);
+            if (entry.max) details.push(`Max $${entry.max.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`);
+            const chip = document.createElement("span");
+            chip.className = "inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-xs font-semibold text-slate-700 shadow";
+            chip.textContent = `${entry.minor} (${details.join(" | ")})`;
+            return chip;
+          }
+
+          function updatePreview() {
+            previewList.innerHTML = "";
+            const entries = Object.entries(store || {})
+              .filter(([key]) => key.startsWith(`${group.major}|`))
+              .map(([, entry]) => entry)
+              .filter((entry) => entry.value);
+            entries.forEach((entry) => {
+              previewList.appendChild(createPreviewChip(entry));
+            });
+            const expanded = header.getAttribute("aria-expanded") === "true";
+            collapsedPreview.classList.toggle("hidden", !entries.length || expanded);
+          }
+
+          updatePreview();
+          cards.push({ updatePreview, collapsedPreview, list });
+          accordion.appendChild(card);
+        });
+        refreshSummary();
+        updateTotalDisplay();
+        document.getElementById("clearCommodities")?.addEventListener("click", clearAll);
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Thank You | fleetidy</title>
+    <meta name="description" content="Thank you for submitting your Cargo & Logistics application." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tailwind.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+  </head>
+  <body class="font-sans bg-gradient-to-b from-slate-50 to-slate-100 text-slate-900">
+    <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/70 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center px-6 py-4">
+        <nav class="ml-auto flex items-center gap-6 text-sm font-medium text-slate-600">
+          <a class="transition hover:text-brand-blue" href="index.html">Home</a>
+          <a class="transition hover:text-brand-blue" href="app.html">New Application</a>
+          <a class="transition hover:text-brand-blue" href="underwriting-dashboard.html">UW Dashboard</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-4xl px-6 py-16">
+      <section class="rounded-3xl border border-slate-200 bg-white/80 p-10 text-center shadow-sm">
+        <div class="mb-8 flex justify-center">
+          <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-3xl font-semibold text-slate-900">Thank you for your submission!</h1>
+        <p class="mt-4 text-base text-slate-600">
+          We've received the application for <span id="submittedInsured" class="font-semibold text-slate-900">your insured</span>.
+          Your tracking number is <span id="submittedPolicy" class="font-mono font-semibold text-brand-blue"></span>.
+        </p>
+        <p class="mt-2 text-sm text-slate-500">
+          A record has been added to your underwriting dashboard. You can revisit it anytime from the links below.
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+          <a
+            id="detailLink"
+            href="record-detail.html"
+            class="rounded-full border border-brand-blue bg-brand-blue px-6 py-3 text-sm font-semibold text-white transition hover:brightness-95"
+          >
+            View Submission Details
+          </a>
+          <a
+            href="underwriting-dashboard.html"
+            class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-brand-blue hover:text-brand-blue"
+          >
+            Go to UW Dashboard
+          </a>
+          <a
+            href="app.html"
+            class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-brand-blue hover:text-brand-blue"
+          >
+            Start Another Application
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-slate-200 bg-white/70">
+      <div class="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-8 text-xs tracking-[0.4em] text-slate-500 md:flex-row md:items-center md:justify-between">
+        <span>© 2026 fleetidy. all rights reserved.</span>
+        <div class="flex gap-4">
+          <a class="transition hover:text-brand-blue" href="#privacy">Privacy</a>
+          <a class="transition hover:text-brand-blue" href="#terms">Terms</a>
+        </div>
+      </div>
+    </footer>
+    <script>
+      (function () {
+        const STORAGE_KEY = "fleetidySubmittedApplications";
+        const params = new URLSearchParams(window.location.search);
+        const policy = params.get("policy");
+        const policyEl = document.getElementById("submittedPolicy");
+        const insuredEl = document.getElementById("submittedInsured");
+        const detailLink = document.getElementById("detailLink");
+
+        function loadSubmissions() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : [];
+          } catch (err) {
+            return [];
+          }
+        }
+
+        const submissions = loadSubmissions();
+        const submission = submissions.find((item) => item.policy === policy);
+
+        if (policyEl) policyEl.textContent = submission?.policy || policy || "APP";
+        if (insuredEl) insuredEl.textContent = submission?.insured || "your insured";
+        if (detailLink && (submission?.policy || policy)) {
+          const detailPolicy = submission?.policy || policy;
+          detailLink.href = `record-detail.html?policy=${encodeURIComponent(detailPolicy)}`;
+        }
+      })();
+    </script>
+  </body>
+</html>

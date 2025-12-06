@@ -65,10 +65,12 @@
             </div>
           </div>
           <div class="flex flex-col gap-3">
-            <div class="grid grid-cols-1 gap-3 text-sm text-slate-700 sm:grid-cols-3">
+            <div class="grid grid-cols-1 gap-3 text-sm text-slate-700 sm:grid-cols-4">
               <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm flex items-center justify-between">
-                <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold mb-0">Bound Accounts</p>
-                <div id="boundCount" class="text-xl font-semibold text-brand-blue">0</div>
+                <div>
+                  <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold mb-0">Bound Accounts</p>
+                  <div id="boundCount" class="text-xl font-semibold text-brand-blue">0</div>
+                </div>
               </div>
               <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm flex items-center justify-between">
                 <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold mb-0">Avg. FRED Score</p>
@@ -77,6 +79,118 @@
               <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm flex items-center justify-between">
                 <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold mb-0">Unquoted Submissions</p>
                 <div id="unquotedCount" class="text-xl font-semibold text-brand-blue">0</div>
+              </div>
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm relative">
+                <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold mb-3">Status Filter</p>
+                <button
+                  id="statusFilterToggle"
+                  class="flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-500 transition hover:border-brand-blue hover:text-brand-blue"
+                  type="button"
+                >
+                  Show / Hide
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+                <div
+                  id="statusFilterMenu"
+                  class="pointer-events-none absolute right-4 top-20 z-10 mt-2 w-64 rounded-2xl border border-slate-200 bg-white p-4 text-xs font-semibold text-slate-600 opacity-0 shadow-lg transition"
+                  aria-hidden="true"
+                >
+                  <p class="mb-3 text-[10px] uppercase tracking-[0.3em] text-slate-400">Show Statuses</p>
+                  <div class="space-y-2" id="statusFilterOptions">
+                    <div class="rounded-xl border border-slate-200 px-3 py-2" data-status-option="Bound">
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-slate-700">Bound</span>
+                        <div class="flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterBound" value="show" data-status="Bound" checked />
+                            <span>Show</span>
+                          </label>
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterBound" value="hide" data-status="Bound" />
+                            <span>Hide</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 px-3 py-2" data-status-option="Issued">
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-slate-700">Issued</span>
+                        <div class="flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterIssued" value="show" data-status="Issued" checked />
+                            <span>Show</span>
+                          </label>
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterIssued" value="hide" data-status="Issued" />
+                            <span>Hide</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 px-3 py-2" data-status-option="Quoted">
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-slate-700">Quoted</span>
+                        <div class="flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterQuoted" value="show" data-status="Quoted" checked />
+                            <span>Show</span>
+                          </label>
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterQuoted" value="hide" data-status="Quoted" />
+                            <span>Hide</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 px-3 py-2" data-status-option="Working">
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-slate-700">Working</span>
+                        <div class="flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterWorking" value="show" data-status="Working" checked />
+                            <span>Show</span>
+                          </label>
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterWorking" value="hide" data-status="Working" />
+                            <span>Hide</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 px-3 py-2" data-status-option="New">
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-slate-700">New</span>
+                        <div class="flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterNew" value="show" data-status="New" checked />
+                            <span>Show</span>
+                          </label>
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterNew" value="hide" data-status="New" />
+                            <span>Hide</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="rounded-xl border border-slate-200 px-3 py-2" data-status-option="Dead">
+                      <div class="flex items-center justify-between gap-3">
+                        <span class="text-slate-700">Dead</span>
+                        <div class="flex items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-slate-500">
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterDead" value="show" data-status="Dead" checked />
+                            <span>Show</span>
+                          </label>
+                          <label class="inline-flex items-center gap-1">
+                            <input type="radio" class="status-filter-radio h-3 w-3 border-slate-300 text-brand-blue focus:ring-brand-blue" name="statusFilterDead" value="hide" data-status="Dead" />
+                            <span>Hide</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="flex flex-wrap items-center gap-3">
@@ -93,11 +207,36 @@
           <table class="min-w-full divide-y divide-slate-200 text-sm" id="uwTable">
             <thead class="bg-slate-50 text-left font-semibold text-slate-700">
               <tr>
-                <th class="px-4 py-3">Policy #</th>
-                <th class="px-4 py-3">Effective Date</th>
-                <th class="px-4 py-3">Insured Name</th>
-                <th class="px-4 py-3">FRED Score</th>
-                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3" data-sort-key="policy">
+                  <button type="button" class="flex w-full items-center justify-between gap-1 text-left text-slate-700 transition hover:text-brand-blue">
+                    Policy #
+                    <span class="sort-indicator text-[10px] text-slate-400">↕</span>
+                  </button>
+                </th>
+                <th class="px-4 py-3" data-sort-key="effective">
+                  <button type="button" class="flex w-full items-center justify-between gap-1 text-left text-slate-700 transition hover:text-brand-blue">
+                    Effective Date
+                    <span class="sort-indicator text-[10px] text-slate-400">↕</span>
+                  </button>
+                </th>
+                <th class="px-4 py-3" data-sort-key="insured">
+                  <button type="button" class="flex w-full items-center justify-between gap-1 text-left text-slate-700 transition hover:text-brand-blue">
+                    Insured Name
+                    <span class="sort-indicator text-[10px] text-slate-400">↕</span>
+                  </button>
+                </th>
+                <th class="px-4 py-3" data-sort-key="fred">
+                  <button type="button" class="flex w-full items-center justify-between gap-1 text-left text-slate-700 transition hover:text-brand-blue">
+                    FRED Score
+                    <span class="sort-indicator text-[10px] text-slate-400">↕</span>
+                  </button>
+                </th>
+                <th class="px-4 py-3" data-sort-key="status">
+                  <button type="button" class="flex w-full items-center justify-between gap-1 text-left text-slate-700 transition hover:text-brand-blue">
+                    Status
+                    <span class="sort-indicator text-[10px] text-slate-400">↕</span>
+                  </button>
+                </th>
               </tr>
             </thead>
             <tbody id="uwTableBody" class="divide-y divide-slate-100 bg-white">

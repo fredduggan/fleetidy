@@ -1,8 +1,29 @@
 (() => {
   const params = new URLSearchParams(window.location.search);
   const policyParam = params.get("policy");
+  const STATUS_STORAGE_KEY = "fleetidyStatusOverrides";
+  const SUBMISSION_STORAGE_KEY = "fleetidySubmittedApplications";
+  let statusOverrides = {};
 
-  const records = [
+  function loadStatusOverrides() {
+    try {
+      const raw = localStorage.getItem(STATUS_STORAGE_KEY);
+      statusOverrides = raw ? JSON.parse(raw) : {};
+    } catch (err) {
+      statusOverrides = {};
+    }
+  }
+
+  function persistStatusOverride(policy, status) {
+    statusOverrides[policy] = status;
+    try {
+      localStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(statusOverrides));
+    } catch (err) {
+      // ignore write failures (storage might be full or disabled)
+    }
+  }
+
+  const baseRecords = [
     { policy: "MTC-10234", effective: "07-01-2024", insured: "Summit Freight Lines", fred: "B+", status: "Bound", contact: "Alex Morgan", phone: "(555) 111-2200", email: "amorgan@summitfreight.com", address: "123 Summit Ave", cityState: "Denver, CO", zip: "80202", snapshot: ["USDOT Status: ACTIVE", "Operating Authority: Authorized - Contract", "Power Units: 24 | Drivers: 26"], notes: "Low loss frequency; favorable inspection history. Continue monitoring crash indicator." },
     { policy: "MTC-10235", effective: "06-15-2024", insured: "Riverfront Logistics LLC", fred: "B", status: "Working", contact: "Jamie Lee", phone: "(555) 222-3300", email: "jlee@riverfrontlogistics.com", address: "88 Riverside Pkwy", cityState: "St. Louis, MO", zip: "63101", snapshot: ["USDOT Status: ACTIVE", "Operating Authority: Authorized - Contract", "Power Units: 14 | Drivers: 15"], notes: "Awaiting revised driver schedule and safety manual acknowledgement." },
     { policy: "MTC-10236", effective: "08-01-2024", insured: "Metro Cargo Partners", fred: "B-", status: "New", contact: "Morgan Diaz", phone: "(555) 333-4400", email: "mdiaz@metrocargo.com", address: "410 Market St", cityState: "Dallas, TX", zip: "75201", snapshot: ["USDOT Status: ACTIVE", "Operating Authority: Authorized - Contract", "Power Units: 9 | Drivers: 9"], notes: "New submission; need loss runs and updated equipment list." },
@@ -41,7 +62,189 @@
     { policy: "MTC-10269", effective: "04-05-2025", insured: "Everline Transport", fred: "B", status: "Issued", contact: "Avery Quinn", phone: "(555) 390-1010", email: "aquinn@everlinetransport.com", address: "200 Everline Rd", cityState: "Kansas City, MO", zip: "64106", snapshot: ["USDOT Status: ACTIVE", "Operating Authority: Authorized - Contract", "Power Units: 11 | Drivers: 11"], notes: "Issued; confirm filing receipt with broker." },
   ];
 
+  loadStatusOverrides();
+
+  function loadSubmissionRecords() {
+    try {
+      const raw = localStorage.getItem(SUBMISSION_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (err) {
+      return [];
+    }
+  }
+
+  const records = baseRecords.concat(loadSubmissionRecords());
   const record = records.find((r) => r.policy === policyParam) || records[0];
+  if (record && statusOverrides[record.policy]) {
+    record.status = statusOverrides[record.policy];
+  }
+
+  function digitsOnly(value) {
+    if (typeof value === "number") return Math.max(0, Math.floor(value)).toString();
+    return String(value || "").replace(/[^0-9]/g, "");
+  }
+
+  function formatNumber(value) {
+    const digits = digitsOnly(value);
+    if (!digits) return "";
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function formatCurrencyDisplay(value) {
+    const formatted = formatNumber(value);
+    return formatted ? `$${formatted}` : "";
+  }
+
+  function formatMilesDisplay(value) {
+    const formatted = formatNumber(value);
+    return formatted ? `${formatted} Miles` : "";
+  }
+
+  function numericSeed(rec) {
+    const digits = String(rec?.policy || "").replace(/[^0-9]/g, "");
+    if (!digits) return 0;
+    return digits.split("").reduce((sum, digit) => sum + Number(digit), 0);
+  }
+
+  function pickFromList(list, seed) {
+    if (!Array.isArray(list) || !list.length) return "";
+    return list[seed % list.length];
+  }
+
+  function normalizeYesNo(value, fallback = "no") {
+    if (value === "yes" || value === "no") return value;
+    return fallback;
+  }
+
+  function buildDefaultCoverage(rec) {
+    const seed = numericSeed(rec);
+    const carriers = ["Summit Mutual", "HarborPoint Casualty", "Coastal Assurance", "Ironwood Risk Partners", "Beacon Underwriters"];
+    const revenueUnit = seed % 3 === 0;
+    return {
+      carrier: pickFromList(carriers, seed) || "Summit Mutual",
+      reportingType: revenueUnit ? "Current Revenue" : "Current Miles",
+      reportingUnit: revenueUnit ? "revenue" : "miles",
+      reportedDisplay: revenueUnit ? formatCurrencyDisplay(800000 + seed * 3200) : formatMilesDisplay(120000 + seed * 900),
+      premiumDisplay: formatCurrencyDisplay(75000 + (seed % 8) * 4500),
+      noCurrentCoverage: false,
+      cancelled: seed % 5 === 0 ? "yes" : "no",
+      bankruptcy: seed % 7 === 0 ? "yes" : "no",
+      priorAuthority: seed % 4 === 0
+        ? { status: "yes", name: `${(rec.insured || "Legacy").split(" ")[0]} Logistics`, dot: `USDOT ${500000 + seed}` }
+        : { status: "no", name: "", dot: "" }
+    };
+  }
+
+  function normalizeCoverageHistory(rec) {
+    const defaults = buildDefaultCoverage(rec);
+    const existing = rec.coverageHistory || {};
+    const prior = existing.priorAuthority || {};
+    return {
+      carrier: existing.carrier || defaults.carrier,
+      reportingType: existing.reportingType || defaults.reportingType,
+      reportingUnit: existing.reportingUnit || defaults.reportingUnit,
+      reportedDisplay: existing.reportedDisplay || defaults.reportedDisplay,
+      premiumDisplay: existing.premiumDisplay || defaults.premiumDisplay,
+      noCurrentCoverage: Boolean(existing.noCurrentCoverage),
+      cancelled: normalizeYesNo(existing.cancelled, defaults.cancelled),
+      bankruptcy: normalizeYesNo(existing.bankruptcy, defaults.bankruptcy),
+      priorAuthority: {
+        status: normalizeYesNo(prior.status, defaults.priorAuthority.status),
+        name: prior.name || defaults.priorAuthority.name,
+        dot: prior.dot || defaults.priorAuthority.dot,
+      }
+    };
+  }
+
+  function buildDefaultTerminals(rec) {
+    const seed = numericSeed(rec);
+    const [primaryCity, primaryState] = (rec.cityState || "Columbus, OH").split(",").map((part) => part.trim());
+    const altLocations = [
+      { city: "Kansas City", state: "MO" },
+      { city: "Atlanta", state: "GA" },
+      { city: "Memphis", state: "TN" },
+      { city: "Chicago", state: "IL" },
+      { city: "Dallas", state: "TX" }
+    ];
+    const alt = pickFromList(altLocations, seed) || altLocations[0];
+    return [
+      {
+        label: `${primaryCity || "Primary"} Terminal`,
+        street: rec.address || `${300 + (seed % 60)} Commerce Park Dr`,
+        city: primaryCity || alt.city,
+        state: primaryState || alt.state,
+        zip: rec.zip || `${43000 + (seed % 900)}`,
+        limit: formatCurrencyDisplay(450000 + seed * 5500),
+        construction: seed % 2 === 0 ? "Fire Resistive" : "MFR",
+        sprinkler: seed % 3 === 0 ? "Partially" : "Fully"
+      },
+      {
+        label: `${alt.city} Yard`,
+        street: `${150 + (seed % 80)} Logistics Way`,
+        city: alt.city,
+        state: alt.state,
+        zip: `${60000 + (seed % 1000)}`,
+        limit: formatCurrencyDisplay(280000 + seed * 4200),
+        construction: seed % 4 === 0 ? "NC" : "Frame",
+        sprinkler: seed % 5 === 0 ? "Not Sprinklered" : "Fully"
+      }
+    ];
+  }
+
+  function buildDefaultLossHistory(rec) {
+    const seed = numericSeed(rec);
+    const [month = "01", day = "01", yearStr = "2024"] = (rec.effective || "01-01-2024").split("-");
+    const effectiveYear = parseInt(yearStr, 10) || 2024;
+    const causes = ["Theft - Yard", "Collision - Rollover", "Weather - Hail", "Reefer Breakdown"];
+    const amounts = ["$15,000", "$28,500", "$46,750", "$82,400"];
+    const rows = [];
+    for (let i = 0; i < 5; i += 1) {
+      const startYear = effectiveYear - (i + 1);
+      const endYear = startYear + 1;
+      const period = `${month}/${day}/${startYear}-${String(endYear).slice(-2)}`;
+      const none = (i + seed) % 2 === 0;
+      if (none) {
+        rows.push({ period, claims: "No Losses", cause: "---", amount: "--", open: "no", none: true });
+      } else {
+        rows.push({
+          period,
+          claims: String(((i + seed) % 3) + 1),
+          cause: causes[(i + seed) % causes.length],
+          amount: amounts[(i + seed) % amounts.length],
+          open: (i + seed) % 3 === 0 ? "yes" : "no",
+          none: false,
+        });
+      }
+    }
+    return rows;
+  }
+
+  function buildDefaultTheftSecurity(rec) {
+    const seed = numericSeed(rec);
+    return {
+      unattended: seed % 3 === 0 ? { answer: "Yes", detail: "Only while staged inside fenced yards." } : { answer: "No", detail: "" },
+      detached: seed % 4 === 0 ? { answer: "Yes", detail: "Occasional port storage with roving guards." } : { answer: "No", detail: "" },
+      atLocations: seed % 2 === 0 ? ["Fenced Lot", "Security Guards", "Cameras"] : ["Fenced Lot", "Inside Secure Building"],
+      inTransit: seed % 5 === 0 ? ["GPS Device", "Vehicle Theft Alarm", "Other: Remote disable"] : ["GPS Device", "Vehicle Theft Alarm"],
+    };
+  }
+
+  function buildDefaultCommodities(rec) {
+    const seed = numericSeed(rec);
+    const categories = [
+      { major: "Agricultural Commodities", minor: "Row Crops" },
+      { major: "Consumer Packaged Goods", minor: "Household Essentials" },
+      { major: "Electronics & Technology", minor: "Consumer Electronics" },
+      { major: "Industrial Machinery", minor: "Construction Equipment" },
+      { major: "Retail & E-Commerce", minor: "General Merchandise" }
+    ];
+    const primary = categories[seed % categories.length];
+    const secondary = categories[(seed + 1) % categories.length];
+    return [
+      { ...primary, value: "45", average: String(45000 + seed * 250), max: String(88000 + seed * 300) },
+      { ...secondary, value: "55", average: String(36000 + seed * 200), max: String(76000 + seed * 240) }
+    ];
+  }
 
   function applyDefaults(rec) {
     const defaultCarrierTypes = ["common", "contract"];
@@ -53,9 +256,37 @@
     };
     const defaultOperations = ["Dry Van / Box", "Refrigerated Freight", "Flat Bed"];
 
-    rec.carrierTypes = rec.carrierTypes || defaultCarrierTypes;
-    rec.carrierMetrics = rec.carrierMetrics || defaultCarrierMetrics;
-    rec.operations = rec.operations || defaultOperations;
+    rec.agencyName = rec.agencyName || "Summit Risk Partners";
+    rec.agencyContact = rec.agencyContact || "Jane DeBlazio";
+    rec.agencyEmail = rec.agencyEmail || "jane@summitrisk.com";
+    rec.agencyPhone = rec.agencyPhone || "(555) 222-8800";
+    rec.agencyAddress = rec.agencyAddress || "200 Capital Ave";
+    rec.agencyCity = rec.agencyCity || "Columbus";
+    rec.agencyState = rec.agencyState || "OH";
+    rec.agencyZip = rec.agencyZip || "43215";
+    rec.notes = rec.notes || "--";
+    rec.carrierTypes = Array.isArray(rec.carrierTypes) && rec.carrierTypes.length ? rec.carrierTypes : defaultCarrierTypes;
+    rec.carrierMetrics = rec.carrierMetrics || {};
+    rec.carrierTypes.forEach((type) => {
+      if (!rec.carrierMetrics[type] && defaultCarrierMetrics[type]) {
+        rec.carrierMetrics[type] = defaultCarrierMetrics[type];
+      }
+    });
+    rec.operations = Array.isArray(rec.operations) && rec.operations.length ? rec.operations : defaultOperations;
+    rec.coverageHistory = normalizeCoverageHistory(rec);
+    if (!Array.isArray(rec.terminals)) {
+      rec.terminals = buildDefaultTerminals(rec);
+    }
+    if (!Array.isArray(rec.lossHistory) || !rec.lossHistory.length) {
+      rec.lossHistory = buildDefaultLossHistory(rec);
+    }
+    if (!rec.theftSecurity) {
+      rec.theftSecurity = buildDefaultTheftSecurity(rec);
+    }
+    if (!Array.isArray(rec.commodities) || !rec.commodities.length) {
+      rec.commodities = buildDefaultCommodities(rec);
+    }
+    rec.snapshot = Array.isArray(rec.snapshot) ? rec.snapshot : [];
   }
 
   function setText(id, value) {
@@ -70,7 +301,6 @@
 
   function renderStatus(status) {
     const el = document.getElementById("detailStatusPill");
-    const elInline = document.getElementById("detailStatusPillInline");
     if (!el) return;
     const map = {
       Bound: "bg-emerald-50 text-emerald-700",
@@ -94,11 +324,6 @@
     const dotEl = el.querySelector("span");
     if (dotEl) dotEl.className = `h-2 w-2 rounded-full ${dot}`;
     setText("detailStatus", status);
-    if (elInline) {
-      elInline.className = `inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold ${color}`;
-      const dotInline = elInline.querySelector("span");
-      if (dotInline) dotInline.className = `h-2 w-2 rounded-full ${dot}`;
-    }
   }
 
   function renderSnapshot(list = []) {
@@ -151,14 +376,16 @@
     };
     order.forEach((key) => {
       if (!types.includes(key) || !metrics[key]) return;
+      const projected = metrics[key].projected || "--";
+      const current = metrics[key].current || "--";
       const row = document.createElement("div");
       row.className = "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3";
       const left = document.createElement("div");
       left.className = "flex items-center gap-2 text-slate-700";
-      left.innerHTML = `<span class="h-2 w-2 rounded-full bg-slate-500"></span><span class="font-semibold">${labelMap[key] || key}</span><span class="text-slate-500">Projected: ${metrics[key].projected}</span>`;
+      left.innerHTML = `<span class="h-2 w-2 rounded-full bg-slate-500"></span><span class="font-semibold">${labelMap[key] || key}</span><span class="text-slate-500">Projected: ${projected}</span>`;
       const right = document.createElement("div");
       right.className = "text-slate-700";
-      right.textContent = `Current: ${metrics[key].current}`;
+      right.textContent = `Current: ${current}`;
       row.append(left, right);
       container.appendChild(row);
     });
@@ -176,6 +403,166 @@
     });
   }
 
+  function renderCoverageFlags(data = {}) {
+    const wrap = document.getElementById("detailCoverageFlags");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    const chips = [
+      {
+        label: data.cancelled === "yes" ? "Cancelled / Non-Renewed" : "No Cancellation History",
+        tone: data.cancelled === "yes" ? "bg-rose-50 text-rose-600 border border-rose-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100",
+      },
+      {
+        label: data.bankruptcy === "yes" ? "Recent Bankruptcy" : "No Bankruptcy",
+        tone: data.bankruptcy === "yes" ? "bg-amber-50 text-amber-700 border border-amber-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100",
+      },
+      {
+        label: data.priorAuthority?.status === "yes" ? "Prior Authority" : "Single Authority",
+        tone: data.priorAuthority?.status === "yes" ? "bg-rose-50 text-rose-600 border border-rose-100" : "bg-slate-100 text-slate-600 border border-slate-200",
+      },
+    ];
+    chips.forEach(({ label, tone }) => {
+      const chip = document.createElement("span");
+      chip.className = `inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${tone}`;
+      chip.textContent = label;
+      wrap.appendChild(chip);
+    });
+  }
+
+  function renderCoverageHistory(data = {}) {
+    setText("detailCoverageCarrier", data.carrier || "--");
+    setText("detailCoverageMetricType", data.reportingType || "--");
+    setText("detailCoverageReported", data.reportedDisplay || "--");
+    setText("detailCoveragePremium", data.premiumDisplay || "--");
+    const badge = document.getElementById("detailNoCurrentCoverage");
+    if (badge) {
+      const show = Boolean(data.noCurrentCoverage);
+      badge.textContent = show ? "No current cargo coverage" : "";
+      badge.classList.toggle("hidden", !show);
+    }
+    const hasPrior = data.priorAuthority?.status === "yes";
+    const priorBlock = document.getElementById("detailPriorAuthorityBlock");
+    if (priorBlock) priorBlock.classList.toggle("hidden", !hasPrior);
+    setText("detailPriorAuthorityName", hasPrior ? data.priorAuthority?.name || "--" : "--");
+    setText("detailPriorAuthorityDot", hasPrior ? data.priorAuthority?.dot || "--" : "--");
+    renderCoverageFlags(data);
+  }
+
+  function renderTerminals(list = []) {
+    const wrap = document.getElementById("detailTerminals");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    if (!list.length) {
+      const empty = document.createElement("p");
+      empty.className = "text-sm text-slate-500";
+      empty.textContent = "No terminals reported.";
+      wrap.appendChild(empty);
+      return;
+    }
+    list.forEach((terminal, index) => {
+      const card = document.createElement("div");
+      card.className = "rounded-2xl border border-slate-200 bg-slate-50 p-4";
+      card.innerHTML = `
+        <div class="flex items-center justify-between text-sm">
+          <h4 class="font-semibold text-slate-800">${terminal.label || `Terminal ${index + 1}`}</h4>
+          <span class="text-xs uppercase tracking-[0.3em] text-slate-400">#${String(index + 1).padStart(2, "0")}</span>
+        </div>
+        <p class="mt-2 text-sm text-slate-600">${terminal.street || "--"}</p>
+        <p class="text-sm text-slate-600">${[terminal.city, terminal.state].filter(Boolean).join(", ")} ${terminal.zip || ""}</p>
+        <div class="mt-3 grid gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 md:grid-cols-3">
+          <div>
+            <p class="text-[11px]">Limit</p>
+            <p class="text-sm font-semibold text-slate-900">${terminal.limit || "--"}</p>
+          </div>
+          <div>
+            <p class="text-[11px]">Construction</p>
+            <p class="text-sm font-semibold text-slate-900">${terminal.construction || "--"}</p>
+          </div>
+          <div>
+            <p class="text-[11px]">Sprinkler</p>
+            <p class="text-sm font-semibold text-slate-900">${terminal.sprinkler || "--"}</p>
+          </div>
+        </div>
+      `;
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderLossHistory(rows = []) {
+    const body = document.getElementById("detailLossHistory");
+    if (!body) return;
+    body.innerHTML = "";
+    if (!rows.length) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = '<td class="px-4 py-3 text-sm text-slate-500" colspan="5">No loss history provided.</td>';
+      body.appendChild(tr);
+      return;
+    }
+    rows.forEach((entry) => {
+      const tr = document.createElement("tr");
+      tr.className = "text-sm text-slate-700";
+      tr.innerHTML = `
+        <td class="px-4 py-3">${entry.period || "--"}</td>
+        <td class="px-4 py-3 text-right font-semibold text-slate-900">${entry.none ? "--" : entry.amount || "--"}</td>
+        <td class="px-4 py-3">${entry.none ? "No Losses" : entry.claims || "--"}</td>
+        <td class="px-4 py-3">${entry.none ? "---" : entry.cause || "--"}</td>
+        <td class="px-4 py-3">${entry.open === "yes" ? "Yes" : "No"}</td>
+      `;
+      body.appendChild(tr);
+    });
+  }
+
+  function renderSecurityChips(id, list = []) {
+    const wrap = document.getElementById(id);
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    if (!list.length) {
+      const placeholder = document.createElement("span");
+      placeholder.className = "text-xs font-semibold text-slate-400";
+      placeholder.textContent = "None reported";
+      wrap.appendChild(placeholder);
+      return;
+    }
+    list.forEach((item) => {
+      const chip = document.createElement("span");
+      chip.className = "inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700";
+      chip.textContent = item;
+      wrap.appendChild(chip);
+    });
+  }
+
+  function renderTheftSecurity(profile = {}) {
+    setText("detailTheftUnattended", profile.unattended?.answer || "--");
+    setText("detailTheftUnattendedDesc", profile.unattended?.answer === "Yes" ? profile.unattended?.detail || "" : "");
+    setText("detailTheftDetached", profile.detached?.answer || "--");
+    setText("detailTheftDetachedDesc", profile.detached?.answer === "Yes" ? profile.detached?.detail || "" : "");
+    renderSecurityChips("detailLocationSecurity", profile.atLocations || []);
+    renderSecurityChips("detailTransitSecurity", profile.inTransit || []);
+  }
+
+  function renderCommodities(list = []) {
+    const wrap = document.getElementById("detailCommodities");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    if (!list.length) {
+      const placeholder = document.createElement("span");
+      placeholder.className = "text-slate-500";
+      placeholder.textContent = "Not provided.";
+      wrap.appendChild(placeholder);
+      return;
+    }
+    list.forEach((entry) => {
+      const detailParts = [];
+      if (entry.value) detailParts.push(`${entry.value}%`);
+      if (entry.average) detailParts.push(`Avg ${formatCurrencyDisplay(entry.average)}`);
+      if (entry.max) detailParts.push(`Max ${formatCurrencyDisplay(entry.max)}`);
+      const chip = document.createElement("span");
+      chip.className = "inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700";
+      chip.textContent = `${entry.minor || entry.major || "Commodity"} (${detailParts.join(" | ")})`;
+      wrap.appendChild(chip);
+    });
+  }
+
   // populate page
   applyDefaults(record);
   document.title = `${record.insured} | Application Details`;
@@ -184,12 +571,19 @@
   setText("detailEffective", record.effective);
   renderStatus(record.status);
   setText("detailStatus", record.status);
-  setText("detailStatusInline", record.status);
   // inputs
   setValue("detailPolicyInput", record.policy);
   setValue("detailEffectiveInput", record.effective);
   setValue("detailStatusInput", record.status);
   setValue("detailScoreInput", record.fred);
+  setValue("detailAgencyNameInput", record.agencyName);
+  setValue("detailAgencyContactInput", record.agencyContact);
+  setValue("detailAgencyEmailInput", record.agencyEmail);
+  setValue("detailAgencyPhoneInput", record.agencyPhone);
+  setValue("detailAgencyAddressInput", record.agencyAddress);
+  setValue("detailAgencyCityInput", record.agencyCity);
+  setValue("detailAgencyStateInput", record.agencyState);
+  setValue("detailAgencyZipInput", record.agencyZip);
   setValue("detailInsuredInput", record.insured);
   setValue("detailContactInput", record.contact);
   setValue("detailPhoneInput", record.phone);
@@ -199,15 +593,28 @@
   setValue("detailCityInput", city || "");
   setValue("detailStateInput", state || "");
   setValue("detailZipInput", record.zip);
-  setText("detailNotes", record.notes);
-  if (record.snapshot) {
-    const carrierSummary = `Carriers: ${record.carrierTypes.join(", ")}`;
-    const opsSummary = `Operations: ${record.operations.join(", ")}`;
-    if (!record.snapshot.includes(carrierSummary)) record.snapshot.push(carrierSummary);
-    if (!record.snapshot.includes(opsSummary)) record.snapshot.push(opsSummary);
-  }
+  setValue("detailNotes", record.notes || "");
+  const carrierSummary = `Carriers: ${record.carrierTypes.join(", ")}`;
+  const opsSummary = `Operations: ${record.operations.join(", ")}`;
+  if (!record.snapshot.includes(carrierSummary)) record.snapshot.push(carrierSummary);
+  if (!record.snapshot.includes(opsSummary)) record.snapshot.push(opsSummary);
   renderSnapshot(record.snapshot);
   renderCarrierTypes(record.carrierTypes);
   renderCarrierMetrics(record.carrierMetrics, record.carrierTypes);
   renderOperations(record.operations);
+  renderCoverageHistory(record.coverageHistory);
+  renderTerminals(record.terminals);
+  renderLossHistory(record.lossHistory);
+  renderTheftSecurity(record.theftSecurity);
+  renderCommodities(record.commodities);
+
+  const statusSelect = document.getElementById("detailStatusInput");
+  if (statusSelect) {
+    statusSelect.addEventListener("change", (event) => {
+      const newStatus = event.target.value;
+      record.status = newStatus;
+      persistStatusOverride(record.policy, newStatus);
+      renderStatus(newStatus);
+    });
+  }
 })();

@@ -25,6 +25,14 @@
       textarea[readonly] {
         background-color: #edf2fb;
       }
+      .textarea-active {
+        background-color: #e0edff !important;
+      }
+      .no-claims-btn.active {
+        background-color: #e0edff;
+        border-color: #93b4ff;
+        color: #1d4ed8;
+      }
       .radius-percentage {
         text-align: center;
       }
@@ -953,9 +961,22 @@
             <p id="radiusTotalDisplay" class="text-sm font-semibold text-slate-600">
               Total Radius Allocation: 0%
             </p>
+            <div class="mt-4 space-y-3 border-t border-dashed border-slate-300 pt-4">
+              <a
+                href="commodities.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex rounded-full border border-brand-blue bg-brand-blue px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-95"
+              >
+                Commodities Worksheet
+              </a>
+              <div id="commoditiesSummaryPrimary" class="text-base text-slate-700">
+                <span class="text-slate-500">No commodities entered yet.</span>
+              </div>
+              <div id="commoditiesSummaryList" class="flex flex-wrap gap-2 text-base text-slate-700"></div>
+            </div>
           </div>
         </section>
-
         <!-- Limits -->
         <section class="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
           <h2 class="mb-4 text-xl font-semibold text-slate-900">Limits & Coverage</h2>
@@ -1068,6 +1089,331 @@
             </div>
           </div>
         </section>
+
+        <!-- Terminals Section -->
+        <section class="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+          <h2 class="mb-4 text-xl font-semibold text-slate-900">Terminals</h2>
+          <div class="space-y-4">
+            <div class="flex flex-wrap items-center gap-6 text-sm text-slate-700">
+              <p class="font-semibold uppercase tracking-[0.2em] text-[11px] text-slate-500">Do you wish to list any terminals?</p>
+              <label class="inline-flex items-center gap-2">
+                <input type="radio" name="listTerminals" value="no" class="h-4 w-4 rounded border-slate-300" checked />
+                <span>No</span>
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="radio" name="listTerminals" value="yes" class="h-4 w-4 rounded border-slate-300" />
+                <span>Yes</span>
+              </label>
+              <div id="terminalsCountWrap" class="flex items-center gap-2 hidden">
+                <label for="terminalsCount" class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Number of Terminals</label>
+                <select id="terminalsCount" class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20">
+                  <option value="1" selected>1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+            </div>
+            <div id="terminalsList" class="space-y-4"></div>
+          </div>
+        </section>
+
+        <!-- Coverage History -->
+        <section class="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 class="text-xl font-semibold text-slate-900">Coverage History</h2>
+            <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+              <input type="checkbox" id="noCurrentCarrier" class="h-4 w-4 rounded border-slate-300" />
+              <span>No current cargo coverage</span>
+            </label>
+          </div>
+          <div class="space-y-6">
+            <div class="grid gap-4 md:grid-cols-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Current Carrier</label>
+                <input id="priorCarrier" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Reporting Type</label>
+                <select id="coverageMetricType" class="mt-1 w-full rounded-lg border border-slate-200 bg-white px-4 py-2 text-slate-900">
+                  <option value="miles">Current Miles</option>
+                  <option value="revenue">Current Revenue</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500"><span id="coverageReportedLabel">Reported</span></label>
+                <input id="coverageMiles" type="text" inputmode="numeric" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" placeholder="Annual amount" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Premium</label>
+                <input id="coveragePremium" type="text" inputmode="numeric" data-fixed-unit="Revenue" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" placeholder="$" />
+              </div>
+            </div>
+            <div class="grid gap-6 md:grid-cols-3">
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Cargo coverage cancelled or non-renewed in the past 3 years?</p>
+                <div class="mt-2 flex items-center gap-4 text-sm text-slate-700">
+                  <label class="inline-flex items-center gap-2">
+                    <input type="radio" name="cargoCancelled" value="yes" class="h-4 w-4 rounded border-slate-300" />
+                    <span>Yes</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2">
+                    <input type="radio" name="cargoCancelled" value="no" class="h-4 w-4 rounded border-slate-300" checked />
+                    <span>No</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Bankruptcy within the past 3 years?</p>
+                <div class="mt-2 flex items-center gap-4 text-sm text-slate-700">
+                  <label class="inline-flex items-center gap-2">
+                    <input type="radio" name="bankruptcy" value="yes" class="h-4 w-4 rounded border-slate-300" />
+                    <span>Yes</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2">
+                    <input type="radio" name="bankruptcy" value="no" class="h-4 w-4 rounded border-slate-300" checked />
+                    <span>No</span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Authority under different name in past 3 years?</p>
+                <div class="mt-2 flex items-center gap-4 text-sm text-slate-700">
+                  <label class="inline-flex items-center gap-2">
+                    <input type="radio" name="priorAuthority" value="yes" class="h-4 w-4 rounded border-slate-300" />
+                    <span>Yes</span>
+                  </label>
+                  <label class="inline-flex items-center gap-2">
+                    <input type="radio" name="priorAuthority" value="no" class="h-4 w-4 rounded border-slate-300" checked />
+                    <span>No</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div id="priorAuthorityFields" class="grid gap-4 md:grid-cols-2 hidden">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">Name of prior authority</label>
+                <input id="priorAuthorityName" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-[0.15em] text-slate-500">DOT # of prior authority</label>
+                <input id="priorAuthorityDot" class="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Loss History -->
+        <section class="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+          <h2 class="mb-4 text-xl font-semibold text-slate-900">Loss History</h2>
+          <p class="text-sm text-slate-600 mb-4">Provide details for the past five years.</p>
+          <div class="overflow-x-auto rounded-2xl border border-slate-200">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+              <thead class="bg-slate-50">
+                <tr class="text-left text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  <th class="px-4 py-3">Policy Period</th>
+                  <th class="px-4 py-3 text-center"></th>
+                  <th class="px-4 py-3"># Claims</th>
+                  <th class="px-4 py-3">Cause(s) of Loss</th>
+                  <th class="px-4 py-3">Amount Paid</th>
+                  <th class="px-4 py-3">Open Claim(s)?</th>
+                </tr>
+              </thead>
+              <tbody id="lossHistoryTableBody" class="divide-y divide-slate-100 bg-white">
+                <tr data-loss-row="1">
+                  <td class="px-4 py-2"><input class="loss-policy-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2 text-center">
+                    <button type="button" class="no-claims-btn active rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500 transition hover:border-brand-blue hover:text-brand-blue">None</button>
+                  </td>
+                  <td class="px-4 py-2"><input type="text" inputmode="numeric" class="loss-claims-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="loss-cause-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900 lossAmountInput" data-fixed-unit="Revenue" placeholder="$" /></td>
+                  <td class="px-4 py-2">
+                    <select class="loss-open-select w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm text-slate-900">
+                      <option value="no" selected>No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr data-loss-row="2">
+                  <td class="px-4 py-2"><input class="loss-policy-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2 text-center">
+                    <button type="button" class="no-claims-btn active rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500 transition hover:border-brand-blue hover:text-brand-blue">None</button>
+                  </td>
+                  <td class="px-4 py-2"><input type="text" inputmode="numeric" class="loss-claims-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="loss-cause-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900 lossAmountInput" data-fixed-unit="Revenue" placeholder="$" /></td>
+                  <td class="px-4 py-2">
+                    <select class="loss-open-select w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm text-slate-900">
+                      <option value="no" selected>No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr data-loss-row="3">
+                  <td class="px-4 py-2"><input class="loss-policy-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2 text-center">
+                    <button type="button" class="no-claims-btn active rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500 transition hover:border-brand-blue hover:text-brand-blue">None</button>
+                  </td>
+                  <td class="px-4 py-2"><input type="text" inputmode="numeric" class="loss-claims-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="loss-cause-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900 lossAmountInput" data-fixed-unit="Revenue" placeholder="$" /></td>
+                  <td class="px-4 py-2">
+                    <select class="loss-open-select w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm text-slate-900">
+                      <option value="no" selected>No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr data-loss-row="4">
+                  <td class="px-4 py-2"><input class="loss-policy-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2 text-center">
+                    <button type="button" class="no-claims-btn active rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500 transition hover:border-brand-blue hover:text-brand-blue">None</button>
+                  </td>
+                  <td class="px-4 py-2"><input type="text" inputmode="numeric" class="loss-claims-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="loss-cause-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900 lossAmountInput" data-fixed-unit="Revenue" placeholder="$" /></td>
+                  <td class="px-4 py-2">
+                    <select class="loss-open-select w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm text-slate-900">
+                      <option value="no" selected>No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr data-loss-row="5">
+                  <td class="px-4 py-2"><input class="loss-policy-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2 text-center">
+                    <button type="button" class="no-claims-btn active rounded-full border border-slate-200 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500 transition hover:border-brand-blue hover:text-brand-blue">None</button>
+                  </td>
+                  <td class="px-4 py-2"><input type="text" inputmode="numeric" class="loss-claims-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="loss-cause-input w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900" /></td>
+                  <td class="px-4 py-2"><input class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-900 lossAmountInput" data-fixed-unit="Revenue" placeholder="$" /></td>
+                  <td class="px-4 py-2">
+                    <select class="loss-open-select w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm text-slate-900">
+                      <option value="no" selected>No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Theft Exposure & Security -->
+        <section class="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm">
+          <h2 class="mb-4 text-xl font-semibold text-slate-900">Theft Exposure &amp; Security</h2>
+          <p class="text-sm text-slate-600 mb-6">Outline how equipment is secured in transit and while parked.</p>
+          <div class="space-y-6">
+            <div>
+              <p class="text-sm font-semibold text-slate-800">1. Are vehicles ever left loaded and unattended?</p>
+              <div class="mt-2 flex items-center gap-4 text-sm text-slate-700">
+                <label class="inline-flex items-center gap-2">
+                  <input type="radio" name="unattendedVehicles" value="yes" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="unattendedDescription" />
+                  <span>Yes</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="radio" name="unattendedVehicles" value="no" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="unattendedDescription" checked />
+                  <span>No</span>
+                </label>
+              </div>
+              <div class="mt-3">
+                <label for="unattendedDescription" class="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">If yes, please describe</label>
+                <textarea id="unattendedDescription" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900" rows="3" placeholder="Provide details" readonly></textarea>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-sm font-semibold text-slate-800">2. Does applicant ever leave loaded trailers detached from power units?</p>
+              <div class="mt-2 flex items-center gap-4 text-sm text-slate-700">
+                <label class="inline-flex items-center gap-2">
+                  <input type="radio" name="detachedTrailers" value="yes" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="detachedDescription" />
+                  <span>Yes</span>
+                </label>
+                <label class="inline-flex items-center gap-2">
+                  <input type="radio" name="detachedTrailers" value="no" class="h-4 w-4 rounded border-slate-300 theft-toggle" data-target="detachedDescription" checked />
+                  <span>No</span>
+                </label>
+              </div>
+              <div class="mt-3">
+                <label for="detachedDescription" class="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">If yes, please describe</label>
+                <textarea id="detachedDescription" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900" rows="3" placeholder="Provide details" readonly></textarea>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-sm font-semibold text-slate-800">3. What security is provided for loaded vehicles? (check all that apply)</p>
+              <div class="mt-4 grid gap-4 md:grid-cols-2">
+                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">At locations</p>
+                  <div class="mt-3 flex flex-wrap gap-3 text-sm text-slate-700">
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> Fenced Lot</label>
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> Security Guards</label>
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> Cameras</label>
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> Kingpin Locks</label>
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> Vehicle Theft Alarms</label>
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> Inside Secure Building</label>
+                    <label class="inline-flex items-center gap-2">
+                      <input type="checkbox" class="h-4 w-4 rounded border-slate-300 theft-other-toggle" data-target="atLocationOther" />
+                      Other
+                    </label>
+                  </div>
+                  <input id="atLocationOther" type="text" class="mt-3 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 hidden" placeholder="Describe other on-site security" />
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+                  <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">In transit</p>
+                  <div class="mt-3 flex flex-wrap gap-3 text-sm text-slate-700">
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> GPS Device</label>
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> Armed Guard in Vehicle</label>
+                    <label class="inline-flex items-center gap-2"><input type="checkbox" class="h-4 w-4 rounded border-slate-300" /> Vehicle Theft Alarm</label>
+                    <label class="inline-flex items-center gap-2">
+                      <input type="checkbox" class="h-4 w-4 rounded border-slate-300 theft-other-toggle" data-target="inTransitOther" />
+                      Other
+                    </label>
+                  </div>
+                  <input id="inTransitOther" type="text" class="mt-3 w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 hidden" placeholder="Describe other in-transit security" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Commodities Modal -->
+        <div
+          id="commoditiesModal"
+          class="fixed inset-0 z-40 hidden items-center justify-center bg-slate-900/70 p-4"
+          aria-hidden="true"
+          >
+          <div class="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+              <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Worksheet</p>
+                <h3 class="text-xl font-semibold text-slate-900">Commodities Mix</h3>
+              </div>
+              <button type="button" class="commodities-close rounded-full border border-slate-200 p-2 text-slate-500 hover:border-brand-blue hover:text-brand-blue">
+                <span class="sr-only">Close</span>
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div id="commoditiesList" class="flex-1 overflow-y-auto bg-slate-50 px-6 py-4 space-y-4"></div>
+            <div class="border-t border-slate-200 bg-white px-6 py-4 text-right">
+              <button
+                type="button"
+                class="commodities-close rounded-full border border-brand-blue bg-brand-blue px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:brightness-95"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Submit Button -->
         <div class="flex justify-center gap-4 py-8">
