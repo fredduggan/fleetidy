@@ -261,12 +261,8 @@
           if (textarea) {
             if (show) {
               textarea.removeAttribute("readonly");
-              textarea.classList.remove("bg-slate-50");
-              textarea.classList.add("bg-white");
             } else {
               textarea.setAttribute("readonly", "");
-              textarea.classList.add("bg-slate-50");
-              textarea.classList.remove("bg-white");
             }
           }
         }
@@ -1380,7 +1376,13 @@
               </div>
               <div class="mt-3 theft-details hidden" id="unattendedDetails">
                 <label for="unattendedDescription" class="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">If yes, please describe</label>
-                <textarea id="unattendedDescription" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900" rows="3" placeholder="Provide details" readonly></textarea>
+                <textarea
+                  id="unattendedDescription"
+                  class="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  rows="3"
+                  placeholder="Provide details"
+                  readonly
+                ></textarea>
               </div>
             </div>
 
@@ -1398,7 +1400,13 @@
               </div>
               <div class="mt-3 theft-details hidden" id="detachedDetails">
                 <label for="detachedDescription" class="block text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">If yes, please describe</label>
-                <textarea id="detachedDescription" class="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900" rows="3" placeholder="Provide details" readonly></textarea>
+                <textarea
+                  id="detachedDescription"
+                  class="mt-2 w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 focus:border-brand-sky focus:outline-none focus:ring-2 focus:ring-brand-sky/20"
+                  rows="3"
+                  placeholder="Provide details"
+                  readonly
+                ></textarea>
               </div>
             </div>
 
