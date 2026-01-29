@@ -1,0 +1,156 @@
+
+============================================================
+FRED SCORE DATA PROCESSING PIPELINE
+============================================================
+Started: 2026-01-29T09:24:20.700146
+
+============================================================
+LOADING DATA FILES (Polars - FAST)
+============================================================
+Loading SMS Census index for filtering...
+  Indexed 2,075,252 SMS records
+Loading and filtering census.csv (for-hire property carriers only)...
+  Loaded 4,379,430 rows with Polars
+  Applying Polars pre-filters...
+    After status filter: 2,194,355 rows
+    After truck power filter: 1,960,257 rows
+    After passenger equip filter: 1,901,201 rows
+    After private passenger filter: 1,883,643 rows
+    After for-hire authority filter: 1,121,380 rows
+  Pre-filter: 4,379,430 -> 1,121,380 (25.6%)
+  Converting 1,121,380 pre-filtered carriers to dicts...
+  Indexing by DOT number...
+  Processed 1,121,380 total rows
+  Removed (inactive status): 0
+  Removed (passenger operation): 0
+  Removed (no truck power): 0
+  Removed (private, not for-hire): 0
+  Removed (no for-hire authority): 0
+  Kept 1,121,380 FOR-HIRE PROPERTY carriers
+
+Loading related data for 1,121,380 carriers...
+Loading fmcsa_data/basic.csv [filtered mode]...
+  Kept 489,755 rows for 1,121,380 target carriers
+  Converting to dicts and indexing...
+  Indexed into 489,755 DOT groups
+Loading fmcsa_data/crashes.csv [filtered mode]...
+  Kept 193,655 rows for 1,121,380 target carriers
+  Converting to dicts and indexing...
+  Indexed into 82,926 DOT groups
+Loading fmcsa_data/inspections.csv [filtered mode]...
+  Kept 6,467,684 rows for 1,121,380 target carriers
+  Converting to dicts and indexing...
+  Indexed into 451,360 DOT groups
+Loading fmcsa_data/violations.csv [filtered mode]...
+  Kept 5,307,658 rows for 1,121,380 target carriers
+  Converting to dicts and indexing...
+  Indexed into 329,001 DOT groups
+Loading violation trends from fmcsa_data/violations.csv [filtered]...
+  Loaded 5,307,658 violation records
+  5,127,667 violations in last 2 years
+  5,127,667 total violations, 916,467 critical
+  Trends available for 324,071 carriers
+
+============================================================
+CALCULATING SCORES
+============================================================
+  Processed 100,000 / 1,121,380 carriers...
+  Processed 200,000 / 1,121,380 carriers...
+  Processed 300,000 / 1,121,380 carriers...
+  Processed 400,000 / 1,121,380 carriers...
+  Processed 500,000 / 1,121,380 carriers...
+  Processed 600,000 / 1,121,380 carriers...
+  Processed 700,000 / 1,121,380 carriers...
+  Processed 800,000 / 1,121,380 carriers...
+  Processed 900,000 / 1,121,380 carriers...
+  Processed 1,000,000 / 1,121,380 carriers...
+  Processed 1,100,000 / 1,121,380 carriers...
+  Processed 1,121,380 carriers
+    With sufficient mileage: 191,569
+    Insufficient mileage: 929,811
+
+============================================================
+CALCULATING INSURANCE RATINGS
+============================================================
+  Pass 1: Computing per-carrier metrics...
+    Eligible carriers (>= 100,000 miles): 191,569
+    Global Avg Violations/100k: 1.106
+    Global Avg Crashes/100k: 0.054
+  Pass 2: Computing multipliers and final scores...
+
+  Insurance Rating Statistics:
+    Mean: 161.97
+    Median: 76.42
+    P10: 1.00
+    P90: 500.00
+    Min: 1.00
+    Max: 500.00
+
+============================================================
+ASSIGNING FRED SCORE GRADES
+============================================================
+
+  FRED Score Grade Distribution (191,569 eligible carriers):
+    A+:  5,748 (  3.0%)
+     A: 13,409 (  7.0%)
+    A-: 19,157 ( 10.0%)
+    B+: 19,157 ( 10.0%)
+     B: 28,736 ( 15.0%)
+    B-: 19,156 ( 10.0%)
+    C+: 19,157 ( 10.0%)
+     C: 19,157 ( 10.0%)
+    C-: 19,157 ( 10.0%)
+    D+:  9,579 (  5.0%)
+     D: 11,494 (  6.0%)
+    D-:  3,831 (  2.0%)
+     F:  3,831 (  2.0%)
+
+Exporting to JavaScript: fred_data.js
+  Written 1,121,380 carriers (1728.4 MB)
+
+Exporting to SQLite: fred_scores.db
+  Written 1,121,380 carriers (446.4 MB)
+
+Exporting to CSV: fred_scores.csv
+  Written 1,121,380 carriers (125.9 MB)
+
+Exporting to Dashboard HTML: fred_dashboard.html
+  Carriers with violation trend data: 324,071
+  Written dashboard (605.5 MB)
+
+Exporting to PostgreSQL: fred_scores
+  ERROR connecting to PostgreSQL: connection to server at "localhost" (::1), port 5432 failed: fe_sendauth: no password supplied
+
+
+============================================================
+PROCESSING COMPLETE
+============================================================
+Finished: 2026-01-29T09:30:40.690084
+
+------------------------------------------------------------
+TOP 10 CARRIERS
+------------------------------------------------------------
+  #1 DOT 111: CAIN AM BICKLEY LLC - A+
+  #131,870 DOT 174: CWT FARMS INTERNATIONAL INC - C
+  #169,893 DOT 198: TRANSPORTATION SERVICES INC - D+
+  #2 DOT 206: C & K TRANSFER LLC - A+
+  #169,894 DOT 234: DOUG ANDRUS DISTRIBUTING LLC - D+
+  #131,871 DOT 239: FELIX ANCHUSTEGUI TRUCKING INC - C
+  #169,895 DOT 374: MOHAWK CARPET TRANSPORTATION OF GEORGIA  - D+
+  #3 DOT 529: C W WILLIAMS INC - A+
+  #169,896 DOT 536: BARNHART CRANE AND RIGGING CO - D+
+  #4 DOT 594: DUFFY CRANE INC - A+
+
+------------------------------------------------------------
+BOTTOM 10 CARRIERS
+------------------------------------------------------------
+  #175,626 DOT 4512390: MFD LOGISTICS LLC - D
+  #175,627 DOT 4512623: POWER TRANSPORTATION INC - D
+  #175,628 DOT 4512635: PICTURE ME ROLLING PART 2 LLC - D
+  #175,629 DOT 4513117: JIAJIA TRUCKING INC - D
+  #175,630 DOT 4515261: OUTDOOR ESCAPES LANDSCAPING LLC - D
+  #175,631 DOT 4516303: LEGACY DRIVEAWAY GROUP INC - D
+  #175,632 DOT 4516824: CHANGING MINDS TRANSPORTATION LLC - D
+  #175,633 DOT 4517504: METRO CARGO VAN SERVICES LLC - D
+  #175,634 DOT 4519322: LANDEIRO'S TRUCKING LLC - D
+  #175,635 DOT 4519387: PENN HF TRUCKING INC - D
