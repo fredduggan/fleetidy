@@ -1,0 +1,126 @@
+# Fleetidy Configuration
+# =======================
+# Configuration file for the FMCSA carrier data processing pipeline.
+# Adjust paths and column mappings to match your data files.
+
+# Run date for recency calculations (YYYY-MM-DD format)
+# Used as the reference point for "last X months" calculations
+run_date: "2026-01-28"
+
+# Random seed for deterministic operations
+# Ensures reproducible ISS scores across runs
+random_seed: 42
+
+# Lookback periods in months
+lookback_months_inspections: 24    # For inspection/violation/crash aggregation
+lookback_months_serious: 12        # For serious violation detection
+
+# Output directory for generated files
+output_dir: "output"
+
+# Enable verbose logging
+verbose: false
+
+# Input file paths
+# Set to null if a data source is not available
+input_paths:
+  # Required: Census/carrier registration data
+  census: "data/census.csv"
+
+  # Optional but recommended
+  inspections: "data/inspections.csv"
+  violations: "data/violations.csv"
+  crashes: "data/crashes.csv"
+
+  # SMS PassProperty outputs
+  sms_ab: "data/sms_ab_passproperty.csv"
+  sms_c: "data/sms_c_passproperty.csv"
+
+  # Optional additional data sources
+  oos_orders: null
+  insurance_history: null
+
+# Column mappings
+# Map your file's column names to the expected logical names
+# Adjust these if your FMCSA extracts use different column names
+column_mappings:
+  census:
+    dot_number: "DOT_NUMBER"
+    legal_name: "LEGAL_NAME"
+    dba_name: "DBA_NAME"
+    physical_city: "PHY_CITY"
+    physical_state: "PHY_STATE"
+    physical_zip: "PHY_ZIP"
+    mailing_city: "MAIL_CITY"
+    mailing_state: "MAIL_STATE"
+    mailing_zip: "MAIL_ZIP"
+    power_units: "TOT_PWR"
+    drivers: "TOT_DRS"
+    mcs150_mileage: "MCS150_MILEAGE"
+    mcs150_mileage_year: "MCS150_MILEAGE_YEAR"
+    carrier_operation: "CARRIER_OPERATION"
+    auth_for_hire: "AUTH_FOR_HIRE"
+    entity_type: "ENTITY_TYPE"
+    operating_status: "OP_STATUS"
+    add_date: "ADD_DATE"
+    oic_state: "OIC_STATE"
+
+  inspections:
+    inspection_id: "INSPECTION_ID"
+    dot_number: "DOT_NUMBER"
+    inspection_date: "INSPECTION_DATE"
+    inspection_level: "INSPECTION_LEVEL"
+    oos_total: "OOS_TOTAL"
+    driver_oos_total: "DRIVER_OOS_TOTAL"
+    vehicle_oos_total: "VEHICLE_OOS_TOTAL"
+    state: "STATE"
+
+  violations:
+    inspection_id: "INSPECTION_ID"
+    dot_number: "DOT_NUMBER"
+    violation_code: "VIOLATION_CODE"
+    violation_severity_weight: "VIOLATION_SEVERITY_WEIGHT"
+    basic_category: "BASIC_CATEGORY"
+    oos_indicator: "OOS_INDICATOR"
+    unit_type: "UNIT_TYPE"
+    conviction_date: "CONVICTION_DATE"
+
+  crashes:
+    dot_number: "DOT_NUMBER"
+    crash_date: "CRASH_DATE"
+    report_number: "REPORT_NUMBER"
+    fatalities: "FATALITIES"
+    injuries: "INJURIES"
+    tow_away: "TOW_AWAY"
+    hazmat_released: "HAZMAT_RELEASED"
+    state: "STATE"
+
+  sms:
+    dot_number: "DOT_NUMBER"
+    unsafe_driving_percentile: "UNSAFE_DRIV_MEASURE"
+    hos_percentile: "HOS_DRIV_MEASURE"
+    driver_fitness_percentile: "DRIV_FIT_MEASURE"
+    controlled_substances_percentile: "CONTR_SUBST_MEASURE"
+    vehicle_maintenance_percentile: "VEH_MAINT_MEASURE"
+    hazmat_percentile: "HM_MEASURE"
+    crash_percentile: "CRASH_MEASURE"
+    unsafe_driving_alert: "UNSAFE_DRIV_ALERT"
+    hos_alert: "HOS_DRIV_ALERT"
+    driver_fitness_alert: "DRIV_FIT_ALERT"
+    controlled_substances_alert: "CONTR_SUBST_ALERT"
+    vehicle_maintenance_alert: "VEH_MAINT_ALERT"
+    hazmat_alert: "HM_ALERT"
+    crash_alert: "CRASH_ALERT"
+
+  oos_orders:
+    dot_number: "DOT_NUMBER"
+    oos_date: "OOS_DATE"
+    oos_reason: "OOS_REASON"
+    oos_status: "OOS_STATUS"
+
+  insurance_history:
+    dot_number: "DOT_NUMBER"
+    effective_date: "EFFECTIVE_DATE"
+    cancellation_date: "CANCELLATION_DATE"
+    insurance_type: "INSURANCE_TYPE"
+    policy_surety: "POLICY_SURETY"

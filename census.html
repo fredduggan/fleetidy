@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRED Census Overview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="fred_data.js"></script>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <!-- Header -->
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight">FRED Census Overview</h1>
+            <p class="text-zinc-400 mt-1">Grade distribution across all carriers</p>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-6">
+            <h2 class="text-lg font-semibold tracking-tight mb-4">Summary</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div>
+                    <div class="text-zinc-400 text-sm">Total Carriers</div>
+                    <div class="text-2xl font-semibold tabular-nums" id="total-carriers">-</div>
+                </div>
+                <div>
+                    <div class="text-zinc-400 text-sm">Graded Carriers</div>
+                    <div class="text-2xl font-semibold tabular-nums" id="graded-carriers">-</div>
+                </div>
+                <div>
+                    <div class="text-zinc-400 text-sm">Avg Combined Score</div>
+                    <div class="text-2xl font-semibold tabular-nums" id="avg-score">-</div>
+                </div>
+                <div>
+                    <div class="text-zinc-400 text-sm">Total Power Units</div>
+                    <div class="text-2xl font-semibold tabular-nums" id="total-power-units">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Chart Card -->
+        <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-6">
+            <h2 class="text-lg font-semibold tracking-tight mb-4">Grade Distribution</h2>
+            <div class="h-72 cursor-pointer">
+                <canvas id="gradeChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Grade Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4" id="grade-cards">
+            <!-- A Grades -->
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('A+')" data-grade="A+">
+                <div class="text-2xl font-bold text-emerald-400">A+</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-A+">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('A')" data-grade="A">
+                <div class="text-2xl font-bold text-emerald-400">A</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-A">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('A-')" data-grade="A-">
+                <div class="text-2xl font-bold text-emerald-400">A-</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-A-">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+
+            <!-- B Grades -->
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('B+')" data-grade="B+">
+                <div class="text-2xl font-bold text-blue-400">B+</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-B+">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('B')" data-grade="B">
+                <div class="text-2xl font-bold text-blue-400">B</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-B">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('B-')" data-grade="B-">
+                <div class="text-2xl font-bold text-blue-400">B-</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-B-">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+
+            <!-- C Grades -->
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('C+')" data-grade="C+">
+                <div class="text-2xl font-bold text-yellow-400">C+</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-C+">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('C')" data-grade="C">
+                <div class="text-2xl font-bold text-yellow-400">C</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-C">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('C-')" data-grade="C-">
+                <div class="text-2xl font-bold text-yellow-400">C-</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-C-">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+
+            <!-- D Grades -->
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('D+')" data-grade="D+">
+                <div class="text-2xl font-bold text-orange-400">D+</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-D+">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('D')" data-grade="D">
+                <div class="text-2xl font-bold text-orange-400">D</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-D">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('D-')" data-grade="D-">
+                <div class="text-2xl font-bold text-orange-400">D-</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-D-">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+
+            <!-- F Grade -->
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('F')" data-grade="F">
+                <div class="text-2xl font-bold text-red-400">F</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-F">-</div>
+                <div class="text-zinc-400 text-sm">carriers</div>
+            </div>
+
+            <!-- Ungraded -->
+            <div class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-4 text-center cursor-pointer hover:bg-zinc-800/60 hover:border-zinc-700 transition-colors" onclick="showCarriers('N/A')" data-grade="N/A">
+                <div class="text-2xl font-bold text-zinc-500">N/A</div>
+                <div class="text-xl font-semibold tabular-nums mt-1" id="count-NA">-</div>
+                <div class="text-zinc-400 text-sm">ungraded</div>
+            </div>
+        </div>
+
+        <!-- Carrier List (shown when grade is selected) -->
+        <div id="carrier-list-section" class="bg-zinc-900/60 border border-zinc-800 rounded-2xl shadow-lg p-6 hidden">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold tracking-tight">
+                    <span id="selected-grade-label">-</span> Carriers
+                    <span class="text-zinc-400 font-normal ml-2">(<span id="selected-grade-count">0</span>)</span>
+                </h2>
+                <button onclick="closeCarrierList()" class="text-zinc-400 hover:text-zinc-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-zinc-800 text-left">
+                            <th class="pb-3 pr-4 text-zinc-400 font-medium">DOT #</th>
+                            <th class="pb-3 pr-4 text-zinc-400 font-medium">Legal Name</th>
+                            <th class="pb-3 pr-4 text-zinc-400 font-medium">City, State</th>
+                            <th class="pb-3 pr-4 text-zinc-400 font-medium text-right">Power Units</th>
+                            <th class="pb-3 pr-4 text-zinc-400 font-medium text-right">Score</th>
+                            <th class="pb-3 text-zinc-400 font-medium text-right">Rank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="carrier-table-body" class="divide-y divide-zinc-800/50">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const GRADES = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F'];
+        const GRADE_COLORS = {
+            'A+': '#22c55e', 'A': '#10b981', 'A-': '#14b8a6',
+            'B+': '#06b6d4', 'B': '#0ea5e9', 'B-': '#3b82f6',
+            'C+': '#6366f1', 'C': '#8b5cf6', 'C-': '#a855f7',
+            'D+': '#d946ef', 'D': '#ec4899', 'D-': '#f43f5e',
+            'F': '#ef4444'
+        };
+
+        // Count carriers by grade
+        const gradeCounts = {};
+        GRADES.forEach(g => gradeCounts[g] = 0);
+        let ungraded = 0;
+        let totalScore = 0;
+        let scoredCount = 0;
+        let totalPowerUnits = 0;
+
+        FRED_DATA.forEach(carrier => {
+            const grade = carrier.fred_score_grade;
+            if (grade && GRADES.includes(grade)) {
+                gradeCounts[grade]++;
+            } else {
+                ungraded++;
+            }
+            if (carrier.combined_score) {
+                totalScore += carrier.combined_score;
+                scoredCount++;
+            }
+            totalPowerUnits += carrier.power_units || 0;
+        });
+
+        // Update grade count cards
+        GRADES.forEach(grade => {
+            const el = document.getElementById(`count-${grade}`);
+            if (el) el.textContent = gradeCounts[grade].toLocaleString();
+        });
+        document.getElementById('count-NA').textContent = ungraded.toLocaleString();
+
+        // Update summary stats
+        document.getElementById('total-carriers').textContent = FRED_DATA.length.toLocaleString();
+        document.getElementById('graded-carriers').textContent = (FRED_DATA.length - ungraded).toLocaleString();
+        document.getElementById('avg-score').textContent = scoredCount > 0 ? (totalScore / scoredCount).toFixed(1) : '-';
+        document.getElementById('total-power-units').textContent = totalPowerUnits.toLocaleString();
+
+        // Show carriers for a selected grade
+        function showCarriers(grade) {
+            const section = document.getElementById('carrier-list-section');
+            const tbody = document.getElementById('carrier-table-body');
+            const label = document.getElementById('selected-grade-label');
+            const countEl = document.getElementById('selected-grade-count');
+
+            // Filter carriers by grade
+            let carriers;
+            if (grade === 'N/A') {
+                carriers = FRED_DATA.filter(c => !c.fred_score_grade || !GRADES.includes(c.fred_score_grade));
+            } else {
+                carriers = FRED_DATA.filter(c => c.fred_score_grade === grade);
+            }
+
+            // Sort by rank (or combined score for ungraded)
+            carriers.sort((a, b) => {
+                if (a.rank && b.rank) return a.rank - b.rank;
+                if (a.rank) return -1;
+                if (b.rank) return 1;
+                return (b.combined_score || 0) - (a.combined_score || 0);
+            });
+
+            // Update header
+            label.textContent = grade === 'N/A' ? 'Ungraded' : `Grade ${grade}`;
+            countEl.textContent = carriers.length.toLocaleString();
+
+            // Populate table
+            tbody.innerHTML = carriers.map(c => `
+                <tr class="hover:bg-zinc-800/30">
+                    <td class="py-3 pr-4 tabular-nums">${c.dot_number}</td>
+                    <td class="py-3 pr-4">${c.legal_name || '-'}</td>
+                    <td class="py-3 pr-4 text-zinc-400">${[c.physical_city, c.physical_state].filter(Boolean).join(', ') || '-'}</td>
+                    <td class="py-3 pr-4 text-right tabular-nums">${(c.power_units || 0).toLocaleString()}</td>
+                    <td class="py-3 pr-4 text-right tabular-nums">${c.combined_score ? c.combined_score.toFixed(1) : '-'}</td>
+                    <td class="py-3 text-right tabular-nums">${c.rank ? '#' + c.rank.toLocaleString() : '-'}</td>
+                </tr>
+            `).join('');
+
+            // Highlight selected card
+            document.querySelectorAll('#grade-cards > div').forEach(card => {
+                if (card.dataset.grade === grade) {
+                    card.classList.add('ring-2', 'ring-zinc-500');
+                } else {
+                    card.classList.remove('ring-2', 'ring-zinc-500');
+                }
+            });
+
+            // Show section and scroll to it
+            section.classList.remove('hidden');
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function closeCarrierList() {
+            document.getElementById('carrier-list-section').classList.add('hidden');
+            document.querySelectorAll('#grade-cards > div').forEach(card => {
+                card.classList.remove('ring-2', 'ring-zinc-500');
+            });
+        }
+
+        // Create bar chart
+        const ctx = document.getElementById('gradeChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: GRADES,
+                datasets: [{
+                    label: 'Carriers',
+                    data: GRADES.map(g => gradeCounts[g]),
+                    backgroundColor: GRADES.map(g => GRADE_COLORS[g]),
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(113, 113, 122, 0.2)' },
+                        ticks: { color: '#a1a1aa', font: { weight: '600' } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(113, 113, 122, 0.2)' },
+                        ticks: { color: '#a1a1aa' }
+                    }
+                },
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        showCarriers(GRADES[index]);
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -25,6 +25,7 @@
             <a class="transition hover:text-brand-blue" href="#about">About</a>
             <a class="transition hover:text-brand-blue" href="white-paper.html">White-Paper</a>
             <a class="transition hover:text-brand-blue" href="app.html">Application</a>
+            <a class="transition hover:text-brand-blue" href="/census" target="_blank">Census</a>
             <div class="relative">
               <button
                 id="dashboardToggle"
@@ -94,8 +95,8 @@
               <div class="text-xs uppercase tracking-[0.5em] text-slate-500">Live Portfolio Snapshot</div>
               <div class="mt-4 grid gap-4 text-sm text-slate-600">
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold">Bound fleets</p>
-                  <div class="text-2xl font-semibold text-brand-blue">128</div>
+                  <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold">Eligible Carriers</p>
+                  <div class="text-2xl font-semibold text-brand-blue" id="eligible-carriers">-</div>
                 </div>
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                   <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-semibold">Avg. FRED Score</p>
@@ -241,5 +242,17 @@
       </footer>
     </div>
     <script src="js/main.js" defer></script>
+    <script>
+      // Fetch census stats and update the Eligible Carriers count
+      fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+          const el = document.getElementById('eligible-carriers');
+          if (el && data.graded_carriers !== undefined) {
+            el.textContent = data.graded_carriers.toLocaleString();
+          }
+        })
+        .catch(err => console.log('Could not fetch stats:', err));
+    </script>
   </body>
 </html>
